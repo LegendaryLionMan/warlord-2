@@ -118,7 +118,7 @@ src/
 | **0. Foundation** | Vite + TS + Phaser boots, HUD scaffold, scenes. | ✅ Done |
 | **1. Map** | Procedural map gen, terrain rendering, camera. | ✅ Done |
 | **2. Movement** | Player army, BFS movement, click-to-move. | ✅ Done |
-| **3. Combat** | Stack model, combat resolution, hero bonuses. | Planned |
+| **3. Combat** | Stack model, combat resolution, hero bonuses. | ✅ Done |
 | **4. Cities** | City capture, income, production, mines, ruins. | Planned |
 | **5. AI** | A* pathfinding, AI strategy. | Planned |
 | **6. Faction identity** | Faction bonuses, hero abilities, armories. | Planned |
