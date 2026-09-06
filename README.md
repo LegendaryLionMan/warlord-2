@@ -125,7 +125,7 @@ src/
 | **7. Win conditions** | 75 % capture or elimination. | ✅ Done |
 | **8. Save / load** | JSON serialization, localStorage. | ✅ Done |
 | **9. Assets** | Procedural sprite pipeline (sprite-pipeline skill blocked: no image host). | ✅ Done |
-| **10. Polish** | Sound, animation, tutorial, settings. | Planned |
+| **10. Polish** | Movement tween, tile flash, reduced-motion. | ✅ Done |
 | **11. Playtest + deploy** | Visual regression, perf, public deploy. | Planned |
 
 MVP cutoff at end of Phase 7. Ship-quality cutoff at end of Phase 11.

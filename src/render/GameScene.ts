@@ -201,6 +201,7 @@ export class GameScene extends Phaser.Scene {
     const outcome = checkOutcome(this.state);
     if (outcome === 'won') {
       this.state.phase = 'won';
+      this.flashTile(Math.floor(this.state.mapWidth / 2), Math.floor(this.state.mapHeight / 2), 0xffd700);
       updateHud({ message: '🏆 VICTORY! You hold 75% of the kingdom.' });
     } else if (outcome === 'lost') {
       this.state.phase = 'lost';
@@ -465,20 +466,72 @@ export class GameScene extends Phaser.Scene {
   }
 
   private moveArmyTo(army: GameState['armies'][number], x: number, y: number): void {
+    const fromX = army.x;
+    const fromY = army.y;
     army.x = x;
     army.y = y;
     consumeMovement(army);
     this.refreshArmySprite();
+    this.animateArmyMove(fromX, fromY, x, y);
+
     // Capture a city if we walked onto one (and it's not already ours).
     const city = this.state.cities.find((c) => c.x === x && c.y === y);
     if (city && city.owner !== army.owner) {
       captureCity(army.owner, city, [...city.garrison]);
       this.refreshCitySprites();
+      this.flashTile(x, y, 0xffffff);
       updateHud({
         cities: this.state.cities.filter((c) => c.owner === this.state.playerFaction).length,
         message: `Captured ${city.name}!`,
       });
     }
+  }
+
+  /** Tween the army sprite from (fromX, fromY) to (toX, toY) if motion is enabled. */
+  private animateArmyMove(fromX: number, fromY: number, toX: number, toY: number): void {
+    if (this.motionReduced()) return;
+    if (!this.armySprite) return;
+    const startX = fromX * TILE_SIZE + TILE_SIZE / 2;
+    const startY = fromY * TILE_SIZE + TILE_SIZE / 2;
+    const endX = toX * TILE_SIZE + TILE_SIZE / 2;
+    const endY = toY * TILE_SIZE + TILE_SIZE / 2;
+    this.tweens.add({
+      targets: this.armySprite,
+      x: endX,
+      y: endY,
+      duration: 200,
+      ease: 'Quad.easeOut',
+    });
+    void startX;
+    void startY;
+  }
+
+  /** Brief white-flash on a tile (combat hit or capture). */
+  private flashTile(x: number, y: number, color: number = 0xffffff): void {
+    if (this.motionReduced()) return;
+    const flash = this.add.rectangle(
+      x * TILE_SIZE + TILE_SIZE / 2,
+      y * TILE_SIZE + TILE_SIZE / 2,
+      TILE_SIZE,
+      TILE_SIZE,
+      color,
+      0.7,
+    );
+    flash.setDepth(80);
+    this.tweens.add({
+      targets: flash,
+      alpha: 0,
+      duration: 300,
+      onComplete: () => flash.destroy(),
+    });
+  }
+
+  /** Read ?motion=0 to disable movement animation. Respects prefers-reduced-motion. */
+  private motionReduced(): boolean {
+    if (typeof window === 'undefined') return false;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('motion') === '0') return true;
+    return window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
   }
 
   private refreshCitySprites(): void {
