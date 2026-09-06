@@ -2,7 +2,7 @@ import Phaser from 'phaser';
 import { UI_COLORS_NUM, TILE_SIZE } from '../config';
 import { updateHud, setEndTurnHandler } from '../hud/hud';
 import { generateMap, tileAt, isPassable } from '../sim/map';
-import { createInitialState, type FactionId, type GameState, type OwnerId } from '../sim/state';
+import { createInitialState, type FactionId, type GameState } from '../sim/state';
 import { PerfOverlay } from '../debug/perf';
 import { bfsReachable } from '../sim/pathfinding';
 import { createArmy, movementBudget, consumeMovement, type ArmyLike } from '../sim/army';
@@ -13,16 +13,9 @@ import { endPlayerTurn } from '../sim/turn';
 import { endAllAiTurns } from '../sim/ai';
 import { checkOutcome } from '../sim/win';
 import { saveSlot, loadSlot } from '../save/storage';
+import { drawArmySprite, drawCitySprite, kindOfUnit } from './procedural-sprites';
 import { CombatScene } from './CombatScene';
 import type { Unit } from '../sim/state';
-
-const PHASER_FACTION_NUM_COLORS: Record<OwnerId, number> = {
-  humans: 0x3b6fb6,
-  elves: 0x2f8a4a,
-  orcs: 0x9b2a2a,
-  undead: 0x6b3a8a,
-  neutral: 0x666666,
-};
 
 /**
  * Game scene. Renders the procedural map, the player army, the movement
@@ -151,19 +144,18 @@ export class GameScene extends Phaser.Scene {
   }
 
   private renderCities(): void {
+    const g = this.add.graphics();
+    g.setDepth(40);
     for (const city of this.state.cities) {
-      const color = PHASER_FACTION_NUM_COLORS[city.owner] ?? 0xaaaaaa;
-      const r = this.add.rectangle(
+      drawCitySprite(
+        g,
         city.x * TILE_SIZE + TILE_SIZE / 2,
         city.y * TILE_SIZE + TILE_SIZE / 2,
-        TILE_SIZE * 0.6,
-        TILE_SIZE * 0.6,
-        color,
+        city.owner,
+        city.size,
       );
-      r.setStrokeStyle(2, 0xffffff, 0.8);
-      r.setDepth(40);
-      this.citySprites.push(r);
     }
+    this.citySprites.push(g as unknown as Phaser.GameObjects.Rectangle);
   }
 
   private renderFeatures(): void {
@@ -258,15 +250,19 @@ export class GameScene extends Phaser.Scene {
   private renderArmy(): void {
     const army = this.state.armies[0];
     if (!army) return;
-    this.armySprite = this.add.rectangle(
-      army.x * TILE_SIZE + TILE_SIZE / 2,
-      army.y * TILE_SIZE + TILE_SIZE / 2,
-      TILE_SIZE * 0.7,
-      TILE_SIZE * 0.7,
-      PHASER_FACTION_NUM_COLORS[army.owner],
-    );
-    this.armySprite.setStrokeStyle(2, 0xffffff, 0.7);
-    this.armySprite.setDepth(50);
+    const g = this.add.graphics();
+    g.setDepth(50);
+    // Draw one sprite per unit; player army only (armies[0]).
+    const cx = army.x * TILE_SIZE + TILE_SIZE / 2;
+    const cy = army.y * TILE_SIZE + TILE_SIZE / 2;
+    if (army.units.length === 1) {
+      drawArmySprite(g, cx, cy, army.owner, kindOfUnit(army.units[0]!.id), !!army.hero);
+    } else {
+      // Stack of units: show the strongest unit type centered.
+      const strongest = army.units.reduce((acc, u) => (u.attack > acc.attack ? u : acc));
+      drawArmySprite(g, cx, cy, army.owner, kindOfUnit(strongest.id), !!army.hero);
+    }
+    this.armySprite = g as unknown as Phaser.GameObjects.Rectangle;
   }
 
   private drawMinimap(): void {
@@ -433,12 +429,7 @@ export class GameScene extends Phaser.Scene {
 
     this.clearRange();
     this.drawMinimap();
-    if (this.armySprite && attacker) {
-      this.armySprite.setPosition(
-        attacker.x * TILE_SIZE + TILE_SIZE / 2,
-        attacker.y * TILE_SIZE + TILE_SIZE / 2,
-      );
-    }
+    this.refreshArmySprite();
     updateHud({ armies: this.state.armies.length });
   }
 
@@ -477,9 +468,7 @@ export class GameScene extends Phaser.Scene {
     army.x = x;
     army.y = y;
     consumeMovement(army);
-    if (this.armySprite) {
-      this.armySprite.setPosition(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
-    }
+    this.refreshArmySprite();
     // Capture a city if we walked onto one (and it's not already ours).
     const city = this.state.cities.find((c) => c.x === x && c.y === y);
     if (city && city.owner !== army.owner) {
@@ -496,6 +485,12 @@ export class GameScene extends Phaser.Scene {
     for (const s of this.citySprites) s.destroy();
     this.citySprites = [];
     this.renderCities();
+  }
+
+  private refreshArmySprite(): void {
+    if (this.armySprite) this.armySprite.destroy();
+    this.armySprite = null;
+    this.renderArmy();
   }
 
   private selectTile(x: number, y: number, terrain: 'plains' | 'forest' | 'hills' | 'mountains' | 'water'): void {

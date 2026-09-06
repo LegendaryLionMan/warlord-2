@@ -124,7 +124,7 @@ src/
 | **6. Faction identity** | Faction bonuses, hero abilities, armories. | ✅ Done |
 | **7. Win conditions** | 75 % capture or elimination. | ✅ Done |
 | **8. Save / load** | JSON serialization, localStorage. | ✅ Done |
-| **9. Assets** | Sprite-pipeline generation for all unit/terrain/city/hero art. | Planned |
+| **9. Assets** | Procedural sprite pipeline (sprite-pipeline skill blocked: no image host). | ✅ Done |
 | **10. Polish** | Sound, animation, tutorial, settings. | Planned |
 | **11. Playtest + deploy** | Visual regression, perf, public deploy. | Planned |
 
