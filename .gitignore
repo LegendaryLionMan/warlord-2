@@ -44,5 +44,11 @@ playwright-report/
 .minimax/
 .mavis/
 
+# Stray typo directories from earlier session
+sim.OLDTYPO/
+Users_lion_*.TYPO_DELETE_ME/
+tsconfig.node.json.UNUSED
+test.js.MIGRATED_OUT
+
 # Vite cache
 .vite/
