@@ -28,8 +28,16 @@ export function mountSidePanel(host: HTMLElement): SidePanelElements {
   const render = (s: HudSnapshot): void => {
     if (s.selectedName) {
       body.innerHTML = `<p class="selected">${escapeHtml(s.selectedName)}</p>`;
+    } else if (s.selectedTerrain) {
+      const x = s.selectedXY?.x ?? 0;
+      const y = s.selectedXY?.y ?? 0;
+      const name = s.selectedTerrain.charAt(0).toUpperCase() + s.selectedTerrain.slice(1);
+      body.innerHTML = `
+        <p class="selected">${escapeHtml(name)}</p>
+        <p class="coord">(${x}, ${y})</p>
+      `;
     } else {
-      body.innerHTML = '<p class="empty">Click on a city or army.</p>';
+      body.innerHTML = '<p class="empty">Click on a city, army, or tile.</p>';
     }
   };
 

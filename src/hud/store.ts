@@ -4,7 +4,7 @@
  * pushes a snapshot after each frame.
  */
 
-import type { FactionId } from '../sim/state';
+import type { FactionId, TerrainId } from '../sim/state';
 
 export interface HudSnapshot {
   turn: number;
@@ -13,6 +13,8 @@ export interface HudSnapshot {
   armies: number;
   faction: FactionId | null;
   selectedName: string | null;
+  selectedTerrain: TerrainId | null;
+  selectedXY: { x: number; y: number } | null;
   message: string | null;
 }
 
@@ -23,6 +25,8 @@ const initial: HudSnapshot = {
   armies: 0,
   faction: null,
   selectedName: null,
+  selectedTerrain: null,
+  selectedXY: null,
   message: null,
 };
 

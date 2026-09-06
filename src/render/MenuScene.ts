@@ -1,6 +1,5 @@
 import Phaser from 'phaser';
 import { UI_COLORS, UI_COLORS_NUM } from '../config';
-import { initHud } from '../hud/hud';
 
 /**
  * Main menu scene. Shows the title and a single "New Game" button.
@@ -64,6 +63,6 @@ export class MenuScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     // Initialize the HUD once the first scene mounts
-    initHud();
+    // (HUD is now initialized in main.ts so it persists across all scenes)
   }
 }

@@ -116,8 +116,8 @@ src/
 | Phase | Goal | Status |
 | --- | --- | --- |
 | **0. Foundation** | Vite + TS + Phaser boots, HUD scaffold, scenes. | ✅ Done |
-| **1. Map** | Procedural map gen, terrain rendering, camera. | ⏳ Next |
-| **2. Movement** | Player army, BFS movement, click-to-move. | Planned |
+| **1. Map** | Procedural map gen, terrain rendering, camera. | ✅ Done |
+| **2. Movement** | Player army, BFS movement, click-to-move. | ⏳ Next |
 | **3. Combat** | Stack model, combat resolution, hero bonuses. | Planned |
 | **4. Cities** | City capture, income, production, mines, ruins. | Planned |
 | **5. AI** | A* pathfinding, AI strategy. | Planned |

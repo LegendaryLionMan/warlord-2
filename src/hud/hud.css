@@ -103,6 +103,13 @@
   font-size: 14px;
 }
 
+.side-panel .panel-body p.coord {
+  color: #6a5a4a;
+  font-family: monospace;
+  font-size: 11px;
+  margin-top: 4px;
+}
+
 /* Message box */
 .message-box {
   position: absolute;
