@@ -12,6 +12,7 @@ import { generateFeatures } from '../sim/features';
 import { endPlayerTurn } from '../sim/turn';
 import { endAllAiTurns } from '../sim/ai';
 import { checkOutcome } from '../sim/win';
+import { saveSlot, loadSlot } from '../save/storage';
 import { CombatScene } from './CombatScene';
 import type { Unit } from '../sim/state';
 
@@ -32,7 +33,7 @@ export class GameScene extends Phaser.Scene {
 
   private perf!: PerfOverlay;
   private faction: FactionId = 'humans';
-  private state!: GameState;
+  private state: GameState = undefined as unknown as GameState;
   private tileSprites: Phaser.GameObjects.Rectangle[][] = [];
   private selectionRect: Phaser.GameObjects.Rectangle | null = null;
   private rangeOverlays: Phaser.GameObjects.Rectangle[] = [];
@@ -51,17 +52,24 @@ export class GameScene extends Phaser.Scene {
     super(GameScene.KEY);
   }
 
-  init(data: { faction?: FactionId }): void {
+  init(data: { faction?: FactionId; loaded?: boolean }): void {
     this.faction = data.faction ?? 'humans';
   }
 
   create(): void {
-    this.state = createInitialState();
-    this.state.playerFaction = this.faction;
-    this.state.phase = 'playing';
-    generateMap(this.state, 42);
-    generateCities(this.state, 42);
-    generateFeatures(this.state, 42);
+    const loaded = (window as unknown as { loadedState?: GameState }).loadedState;
+    if (loaded) {
+      this.state = loaded;
+      this.faction = this.state.playerFaction;
+      delete (window as unknown as { loadedState?: GameState }).loadedState;
+    } else {
+      this.state = createInitialState();
+      this.state.playerFaction = this.faction;
+      this.state.phase = 'playing';
+      generateMap(this.state, 42);
+      generateCities(this.state, 42);
+      generateFeatures(this.state, 42);
+    }
 
     // Find a passable starting tile for the player army
     const start = this.findPassableStart();
@@ -108,6 +116,10 @@ export class GameScene extends Phaser.Scene {
     this.perf = new PerfOverlay(this);
     setEndTurnHandler(() => this.endTurn());
 
+    // Wire HUD save/load buttons to the in-memory state.
+    window.addEventListener('warlords2:save', () => this.saveState());
+    window.addEventListener('warlords2:load', () => this.loadState());
+
     updateHud({
       turn: this.state.turn,
       gold: this.state.gold,
@@ -115,6 +127,27 @@ export class GameScene extends Phaser.Scene {
       armies: this.state.armies.length,
       faction: this.state.playerFaction,
     });
+  }
+
+  private saveState(): void {
+    saveSlot('autosave', this.state);
+    updateHud({ message: 'Game saved.' });
+  }
+
+  private loadState(): void {
+    const state = loadSlot('autosave');
+    if (state) {
+      this.state = state;
+      updateHud({
+        turn: this.state.turn,
+        gold: this.state.gold,
+        cities: this.state.cities.filter((c) => c.owner === this.state.playerFaction).length,
+        armies: this.state.armies.length,
+        message: 'Game loaded.',
+      });
+    } else {
+      updateHud({ message: 'No saved game found.' });
+    }
   }
 
   private renderCities(): void {

@@ -12,6 +12,8 @@ export interface TopBarElements {
   cities: HTMLElement;
   armies: HTMLElement;
   endTurnBtn: HTMLButtonElement;
+  saveBtn: HTMLButtonElement;
+  loadBtn: HTMLButtonElement;
 }
 
 export function mountTopBar(host: HTMLElement, onEndTurn: () => void): TopBarElements {
@@ -42,7 +44,23 @@ export function mountTopBar(host: HTMLElement, onEndTurn: () => void): TopBarEle
     endTurnBtn.blur();
   });
 
-  root.append(turn, gold, cities, armies, endTurnBtn);
+  const saveBtn = document.createElement('button');
+  saveBtn.className = 'hud-action-btn';
+  saveBtn.textContent = '💾 Save';
+  saveBtn.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('warlords2:save'));
+    saveBtn.blur();
+  });
+
+  const loadBtn = document.createElement('button');
+  loadBtn.className = 'hud-action-btn';
+  loadBtn.textContent = '📂 Load';
+  loadBtn.addEventListener('click', () => {
+    window.dispatchEvent(new CustomEvent('warlords2:load'));
+    loadBtn.blur();
+  });
+
+  root.append(turn, gold, cities, armies, saveBtn, loadBtn, endTurnBtn);
   host.appendChild(root);
 
   const render = (s: HudSnapshot): void => {
@@ -54,5 +72,5 @@ export function mountTopBar(host: HTMLElement, onEndTurn: () => void): TopBarEle
 
   subscribeHud(render);
 
-  return { root, turn, gold, cities, armies, endTurnBtn };
+  return { root, turn, gold, cities, armies, endTurnBtn, saveBtn, loadBtn };
 }

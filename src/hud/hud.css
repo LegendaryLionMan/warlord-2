@@ -69,6 +69,29 @@
   transform: scale(0.98);
 }
 
+.hud-action-btn {
+  background: linear-gradient(180deg, #3a3020 0%, #2a2015 100%);
+  border: 1px solid #8b7355;
+  color: #c9b896;
+  font-family: inherit;
+  font-size: 12px;
+  letter-spacing: 1px;
+  padding: 6px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  text-transform: uppercase;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.hud-action-btn:hover {
+  background: linear-gradient(180deg, #4a4030 0%, #3a3020 100%);
+  color: #ffd700;
+}
+
+.hud-action-btn:active {
+  transform: scale(0.98);
+}
+
 /* Side panel */
 .side-panel {
   position: absolute;
