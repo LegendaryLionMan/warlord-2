@@ -92,6 +92,12 @@
   transform: scale(0.98);
 }
 
+.hud-action-btn.mute-btn {
+  min-width: 38px;
+  font-size: 14px;
+  padding: 6px 8px;
+}
+
 /* Side panel */
 .side-panel {
   position: absolute;

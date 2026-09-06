@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
-import { preloadAssets } from '../assets/loader';
+import { preloadAssets, reportLoadFailures } from '../assets/loader';
+import { audioManager } from '../assets/audio-manager';
 
 /**
  * Boot scene. Preloads any required assets and transitions to the menu.
@@ -14,9 +15,11 @@ export class BootScene extends Phaser.Scene {
 
   preload(): void {
     preloadAssets(this);
+    reportLoadFailures(this);
   }
 
   create(): void {
+    audioManager.init(this);
     // Dev shortcut: ?scene=GameScene skips the menu for screenshot/QA use.
     const params = new URLSearchParams(window.location.search);
     const direct = params.get('scene');

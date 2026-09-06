@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { UI_COLORS, UI_COLORS_NUM, FACTION_COLORS } from '../config';
 import { FACTIONS } from '../data/factions';
+import { audioManager } from '../assets/audio-manager';
 import type { FactionId } from '../sim/state';
 
 /**
@@ -15,6 +16,8 @@ export class FactionScene extends Phaser.Scene {
   }
 
   create(): void {
+    audioManager.playMusic('music.faction-select');
+    this.events.once('shutdown', () => audioManager.stopMusic(400));
     const { width, height } = this.scale;
 
     this.add.rectangle(width / 2, height / 2, width, height, UI_COLORS_NUM.background);

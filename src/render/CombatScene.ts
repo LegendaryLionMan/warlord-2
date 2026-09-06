@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { UI_COLORS } from '../config';
+import { audioManager } from '../assets/audio-manager';
 import type { Army } from '../sim/state';
 import type { CombatResult } from '../sim/combat';
 
@@ -17,6 +18,8 @@ export class CombatScene extends Phaser.Scene {
   }
 
   create(): void {
+    audioManager.playMusic('music.combat');
+    audioManager.playSfx('sfx.sword');
     const { width, height } = this.scale;
     const pending = (window as unknown as { combatPayload?: { attacker: Army; result: CombatResult } }).combatPayload;
 
@@ -92,8 +95,15 @@ export class CombatScene extends Phaser.Scene {
     cont.on('pointerover', () => cont.setColor(UI_COLORS.gold));
     cont.on('pointerout', () => cont.setColor(UI_COLORS.text));
     cont.on('pointerdown', () => {
+      // Play victory or defeat sting based on the result.
+      if (pending?.result.victory) {
+        audioManager.playSfx('sfx.victory-sting');
+      } else {
+        audioManager.playSfx('sfx.defeat-sting');
+      }
       // Apply the combat result to the world before closing.
       this.events.emit('combat-resolve', pending);
+      audioManager.stopMusic(400);
       this.scene.stop();
     });
   }

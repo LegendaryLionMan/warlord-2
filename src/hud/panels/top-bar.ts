@@ -4,6 +4,7 @@
  */
 
 import { subscribeHud, type HudSnapshot } from '../store';
+import { audioManager } from '../../assets/audio-manager';
 
 export interface TopBarElements {
   root: HTMLElement;
@@ -14,6 +15,7 @@ export interface TopBarElements {
   endTurnBtn: HTMLButtonElement;
   saveBtn: HTMLButtonElement;
   loadBtn: HTMLButtonElement;
+  muteBtn: HTMLButtonElement;
 }
 
 export function mountTopBar(host: HTMLElement, onEndTurn: () => void): TopBarElements {
@@ -36,14 +38,6 @@ export function mountTopBar(host: HTMLElement, onEndTurn: () => void): TopBarEle
   armies.className = 'top-stat';
   armies.textContent = '⚔ 0';
 
-  const endTurnBtn = document.createElement('button');
-  endTurnBtn.className = 'end-turn-btn';
-  endTurnBtn.textContent = 'End Turn';
-  endTurnBtn.addEventListener('click', () => {
-    onEndTurn();
-    endTurnBtn.blur();
-  });
-
   const saveBtn = document.createElement('button');
   saveBtn.className = 'hud-action-btn';
   saveBtn.textContent = '💾 Save';
@@ -60,7 +54,27 @@ export function mountTopBar(host: HTMLElement, onEndTurn: () => void): TopBarEle
     loadBtn.blur();
   });
 
-  root.append(turn, gold, cities, armies, saveBtn, loadBtn, endTurnBtn);
+  const muteBtn = document.createElement('button');
+  muteBtn.className = 'hud-action-btn mute-btn';
+  muteBtn.textContent = '🔊';
+  muteBtn.title = 'Mute/unmute audio (M)';
+  muteBtn.addEventListener('click', () => {
+    const next = !audioManager.isMuted();
+    audioManager.setMuted(next);
+    muteBtn.textContent = next ? '🔇' : '🔊';
+    muteBtn.title = next ? 'Unmute audio (M)' : 'Mute/unmute audio (M)';
+    muteBtn.blur();
+  });
+
+  const endTurnBtn = document.createElement('button');
+  endTurnBtn.className = 'end-turn-btn';
+  endTurnBtn.textContent = 'End Turn';
+  endTurnBtn.addEventListener('click', () => {
+    onEndTurn();
+    endTurnBtn.blur();
+  });
+
+  root.append(turn, gold, cities, armies, saveBtn, loadBtn, muteBtn, endTurnBtn);
   host.appendChild(root);
 
   const render = (s: HudSnapshot): void => {
@@ -72,5 +86,5 @@ export function mountTopBar(host: HTMLElement, onEndTurn: () => void): TopBarEle
 
   subscribeHud(render);
 
-  return { root, turn, gold, cities, armies, endTurnBtn, saveBtn, loadBtn };
+  return { root, turn, gold, cities, armies, endTurnBtn, saveBtn, loadBtn, muteBtn };
 }

@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { UI_COLORS, UI_COLORS_NUM } from '../config';
 import { listSlots, loadSlot } from '../save/storage';
+import { audioManager } from '../assets/audio-manager';
 
 /**
  * Main menu scene. Shows the title, a "New Game" button, and a
@@ -14,6 +15,8 @@ export class MenuScene extends Phaser.Scene {
   }
 
   create(): void {
+    audioManager.playMusic('music.menu');
+    this.events.once('shutdown', () => audioManager.stopMusic(400));
     const { width, height } = this.scale;
 
     this.add.rectangle(width / 2, height / 2, width, height, UI_COLORS_NUM.background);

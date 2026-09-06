@@ -15,6 +15,9 @@ import { checkOutcome } from '../sim/win';
 import { saveSlot, loadSlot } from '../save/storage';
 import { drawArmySprite, drawCitySprite, kindOfUnit } from './procedural-sprites';
 import { CombatScene } from './CombatScene';
+import { audioManager } from '../assets/audio-manager';
+import { hasSprite, unitKey, heroKey } from '../assets/loader';
+import { SPRITE_KEYS } from '../data/manifests';
 import type { Unit } from '../sim/state';
 
 /**
@@ -83,6 +86,11 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setBackgroundColor(UI_COLORS_NUM.background);
     this.cameras.main.setBounds(0, 0, this.state.mapWidth * TILE_SIZE, this.state.mapHeight * TILE_SIZE);
 
+    // Start gameplay music; ensure cleanup on scene shutdown.
+    audioManager.init(this);
+    audioManager.playMusic('music.gameplay');
+    this.events.once('shutdown', () => audioManager.stopMusic(400));
+
     this.renderMap();
     this.renderCities();
     this.renderFeatures();
@@ -147,13 +155,17 @@ export class GameScene extends Phaser.Scene {
     const g = this.add.graphics();
     g.setDepth(40);
     for (const city of this.state.cities) {
-      drawCitySprite(
-        g,
-        city.x * TILE_SIZE + TILE_SIZE / 2,
-        city.y * TILE_SIZE + TILE_SIZE / 2,
-        city.owner,
-        city.size,
-      );
+      const cx = city.x * TILE_SIZE + TILE_SIZE / 2;
+      const cy = city.y * TILE_SIZE + TILE_SIZE / 2;
+      const spriteKey = this.citySpriteKey(city.owner);
+      if (spriteKey && hasSprite(this, spriteKey)) {
+        const img = this.add.image(cx, cy, spriteKey);
+        img.setDisplaySize(TILE_SIZE * 1.4, TILE_SIZE * 1.4);
+        img.setDepth(40);
+        this.citySprites.push(img as unknown as Phaser.GameObjects.Rectangle);
+      } else {
+        drawCitySprite(g, cx, cy, city.owner, city.size);
+      }
     }
     this.citySprites.push(g as unknown as Phaser.GameObjects.Rectangle);
   }
@@ -165,22 +177,47 @@ export class GameScene extends Phaser.Scene {
       armory: 0x8a5a2a,
     };
     for (const f of this.state.features) {
-      const r = this.add.rectangle(
-        f.x * TILE_SIZE + TILE_SIZE / 2,
-        f.y * TILE_SIZE + TILE_SIZE / 2,
-        TILE_SIZE * 0.5,
-        TILE_SIZE * 0.5,
-        FEATURE_COLORS[f.type],
-      );
-      r.setStrokeStyle(1, 0x000000, 0.4);
-      r.setDepth(20);
-      this.featureSprites.push(r);
+      const cx = f.x * TILE_SIZE + TILE_SIZE / 2;
+      const cy = f.y * TILE_SIZE + TILE_SIZE / 2;
+      const spriteKey = this.featureSpriteKey(f.type);
+      if (spriteKey && hasSprite(this, spriteKey)) {
+        const img = this.add.image(cx, cy, spriteKey);
+        img.setDisplaySize(TILE_SIZE * 0.9, TILE_SIZE * 0.9);
+        img.setDepth(20);
+        this.featureSprites.push(img as unknown as Phaser.GameObjects.Rectangle);
+      } else {
+        const r = this.add.rectangle(cx, cy, TILE_SIZE * 0.5, TILE_SIZE * 0.5, FEATURE_COLORS[f.type]);
+        r.setStrokeStyle(1, 0x000000, 0.4);
+        r.setDepth(20);
+        this.featureSprites.push(r);
+      }
+    }
+  }
+
+  private citySpriteKey(owner: FactionId | 'neutral'): string | null {
+    switch (owner) {
+      case 'humans': return SPRITE_KEYS.cityHumans;
+      case 'elves':  return SPRITE_KEYS.cityElves;
+      case 'orcs':   return SPRITE_KEYS.cityOrcs;
+      case 'undead': return SPRITE_KEYS.cityUndead;
+      case 'neutral':return SPRITE_KEYS.cityNeutral;
+      default:       return null;
+    }
+  }
+
+  private featureSpriteKey(type: 'mine' | 'ruin' | 'armory'): string | null {
+    switch (type) {
+      case 'mine':   return SPRITE_KEYS.featureMine;
+      case 'ruin':   return SPRITE_KEYS.featureRuin;
+      case 'armory': return SPRITE_KEYS.featureArmory;
+      default:       return null;
     }
   }
 
   /** Public hook so the HUD can call end-turn and refresh state. */
   public endTurn(): void {
     const income = endPlayerTurn(this.state);
+    audioManager.playSfx('sfx.click');
     updateHud({
       turn: this.state.turn,
       gold: this.state.gold,
@@ -202,9 +239,15 @@ export class GameScene extends Phaser.Scene {
     if (outcome === 'won') {
       this.state.phase = 'won';
       this.flashTile(Math.floor(this.state.mapWidth / 2), Math.floor(this.state.mapHeight / 2), 0xffd700);
+      audioManager.stopMusic(400);
+      audioManager.playMusic('music.victory', { loop: false, volume: 0.6 });
+      audioManager.playSfx('sfx.victory-sting');
       updateHud({ message: '🏆 VICTORY! You hold 75% of the kingdom.' });
     } else if (outcome === 'lost') {
       this.state.phase = 'lost';
+      audioManager.stopMusic(400);
+      audioManager.playMusic('music.defeat', { loop: false, volume: 0.5 });
+      audioManager.playSfx('sfx.defeat-sting');
       updateHud({ message: '💀 DEFEAT. Your faction is destroyed.' });
     }
   }
@@ -232,19 +275,34 @@ export class GameScene extends Phaser.Scene {
       for (let x = 0; x < this.state.mapWidth; x++) {
         const tile = this.state.map[y]?.[x];
         if (!tile) continue;
+        const cx = x * TILE_SIZE + TILE_SIZE / 2;
+        const cy = y * TILE_SIZE + TILE_SIZE / 2;
         const colors = TERRAIN_NUM_COLORS[tile.terrain];
+        const spriteKey = this.terrainSpriteKey(tile.terrain);
 
-        const rect = this.add.rectangle(
-          x * TILE_SIZE + TILE_SIZE / 2,
-          y * TILE_SIZE + TILE_SIZE / 2,
-          TILE_SIZE,
-          TILE_SIZE,
-          colors.fill,
-        );
-        rect.setStrokeStyle(1, colors.edge, 0.4);
-        row.push(rect);
+        if (spriteKey && hasSprite(this, spriteKey)) {
+          const img = this.add.image(cx, cy, spriteKey);
+          img.setDisplaySize(TILE_SIZE, TILE_SIZE);
+          img.setDepth(0);
+          row.push(img as unknown as Phaser.GameObjects.Rectangle);
+        } else {
+          const rect = this.add.rectangle(cx, cy, TILE_SIZE, TILE_SIZE, colors.fill);
+          rect.setStrokeStyle(1, colors.edge, 0.4);
+          row.push(rect);
+        }
       }
       this.tileSprites.push(row);
+    }
+  }
+
+  private terrainSpriteKey(terrain: 'plains' | 'forest' | 'hills' | 'mountains' | 'water'): string | null {
+    switch (terrain) {
+      case 'plains':    return SPRITE_KEYS.tilePlains;
+      case 'forest':    return SPRITE_KEYS.tileForest;
+      case 'hills':     return SPRITE_KEYS.tileHills;
+      case 'mountains': return SPRITE_KEYS.tileMountains;
+      case 'water':     return SPRITE_KEYS.tileWater;
+      default:          return null;
     }
   }
 
@@ -256,14 +314,32 @@ export class GameScene extends Phaser.Scene {
     // Draw one sprite per unit; player army only (armies[0]).
     const cx = army.x * TILE_SIZE + TILE_SIZE / 2;
     const cy = army.y * TILE_SIZE + TILE_SIZE / 2;
-    if (army.units.length === 1) {
-      drawArmySprite(g, cx, cy, army.owner, kindOfUnit(army.units[0]!.id), !!army.hero);
+    // Pick the strongest unit to display.
+    const strongest = army.units.length === 1
+      ? army.units[0]!
+      : army.units.reduce((acc, u) => (u.attack > acc.attack ? u : acc));
+    const key = unitKey(strongest.id, army.owner);
+    if (key && hasSprite(this, key)) {
+      const img = this.add.image(cx, cy, key);
+      img.setDisplaySize(TILE_SIZE * 1.1, TILE_SIZE * 1.1);
+      img.setDepth(50);
+      this.armySprite = img as unknown as Phaser.GameObjects.Rectangle;
     } else {
-      // Stack of units: show the strongest unit type centered.
-      const strongest = army.units.reduce((acc, u) => (u.attack > acc.attack ? u : acc));
       drawArmySprite(g, cx, cy, army.owner, kindOfUnit(strongest.id), !!army.hero);
+      this.armySprite = g as unknown as Phaser.GameObjects.Rectangle;
     }
-    this.armySprite = g as unknown as Phaser.GameObjects.Rectangle;
+    // Hero portrait overlay if present
+    if (army.hero) {
+      const heroKeyStr = heroKey(army.owner);
+      if (heroKeyStr && hasSprite(this, heroKeyStr)) {
+        const heroImg = this.add.image(cx, cy, heroKeyStr);
+        heroImg.setDisplaySize(TILE_SIZE * 0.45, TILE_SIZE * 0.45);
+        heroImg.setPosition(cx, cy - TILE_SIZE * 0.55);
+        heroImg.setDepth(60);
+        // Gold rim
+        // (no easy stroke on Phaser Image; use a circular ring drawn next to it if needed)
+      }
+    }
   }
 
   private drawMinimap(): void {
@@ -382,6 +458,9 @@ export class GameScene extends Phaser.Scene {
     const result = resolveCombat(attacker, defender, terrain);
     // Stash the result on window for CombatScene to read.
     (window as unknown as { combatPayload: unknown }).combatPayload = { attacker, result };
+    // SFX: sword clash, or magic zap if either side has a magic user
+    const anyMagic = [...attacker.units, ...defender.units].some((u) => u.magic > 0);
+    audioManager.playSfx(anyMagic ? 'sfx.magic' : 'sfx.sword');
     // Listen once for the resolve event from CombatScene.
     this.events.once('resume', () => this.applyCombatResult(attacker, defender, result));
     this.scene.launch(CombatScene.KEY);
@@ -473,6 +552,7 @@ export class GameScene extends Phaser.Scene {
     consumeMovement(army);
     this.refreshArmySprite();
     this.animateArmyMove(fromX, fromY, x, y);
+    audioManager.playSfx('sfx.move');
 
     // Capture a city if we walked onto one (and it's not already ours).
     const city = this.state.cities.find((c) => c.x === x && c.y === y);
@@ -480,6 +560,7 @@ export class GameScene extends Phaser.Scene {
       captureCity(army.owner, city, [...city.garrison]);
       this.refreshCitySprites();
       this.flashTile(x, y, 0xffffff);
+      audioManager.playSfx('sfx.city-capture');
       updateHud({
         cities: this.state.cities.filter((c) => c.owner === this.state.playerFaction).length,
         message: `Captured ${city.name}!`,
