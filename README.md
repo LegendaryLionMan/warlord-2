@@ -121,7 +121,7 @@ src/
 | **3. Combat** | Stack model, combat resolution, hero bonuses. | ✅ Done |
 | **4. Cities** | City capture, income, production, mines, ruins. | ✅ Done |
 | **5. AI** | A* pathfinding, AI strategy. | ✅ Done |
-| **6. Faction identity** | Faction bonuses, hero abilities, armories. | Planned |
+| **6. Faction identity** | Faction bonuses, hero abilities, armories. | ✅ Done |
 | **7. Win conditions** | 75 % capture or elimination. | Planned |
 | **8. Save / load** | JSON serialization, localStorage. | Planned |
 | **9. Assets** | Sprite-pipeline generation for all unit/terrain/city/hero art. | Planned |

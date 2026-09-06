@@ -51,6 +51,23 @@ function applyHeroBonuses(units: Unit[], hero: Army['hero']): Unit[] {
   }));
 }
 
+/** Apply faction bonuses (Humans +1 def, Elves +1 ranged atk, Orcs +1 melee atk). */
+function applyFactionBonus(units: Unit[], faction: Army['owner']): Unit[] {
+  if (faction === 'undead' || faction === 'neutral') return units;
+  return units.map((u) => {
+    if (faction === 'humans') {
+      return { ...u, defense: u.defense + 1 };
+    }
+    if (faction === 'elves' && u.ranged) {
+      return { ...u, attack: u.attack + 1 };
+    }
+    if (faction === 'orcs' && !u.ranged) {
+      return { ...u, attack: u.attack + 1 };
+    }
+    return u;
+  });
+}
+
 /** Add Spearman's anti-cavalry and Wizard's anti-undead magic bonuses. */
 function applySpecialAttackerBonuses(attacker: Unit, defender: Unit, defenderOwner: OwnerId): number {
   let bonus = 0;
@@ -70,8 +87,8 @@ export function resolveCombat(
   defender: Army,
   terrain: TerrainId,
 ): CombatResult {
-  let attackUnits = applyHeroBonuses(sortWeakestFirst(attacker.units), attacker.hero);
-  let defendUnits = applyHeroBonuses(sortWeakestFirst(defender.units), defender.hero);
+  let attackUnits = applyFactionBonus(applyHeroBonuses(sortWeakestFirst(attacker.units), attacker.hero), attacker.owner);
+  let defendUnits = applyFactionBonus(applyHeroBonuses(sortWeakestFirst(defender.units), defender.hero), defender.owner);
 
   const defBonus = terrainDefenseBonus(terrain);
 
