@@ -1,0 +1,34 @@
+/* Global resets and font setup. The Phaser canvas fills the viewport; the
+   HUD overlays it. */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  background: #0a0a12;
+  color: #e8e4d9;
+  font-family: 'Cinzel', serif;
+  overflow: hidden;
+}
+
+#app {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+#game {
+  position: absolute;
+  inset: 0;
+}
+
+#game canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}

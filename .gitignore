@@ -43,3 +43,6 @@ playwright-report/
 # Local runtime / agent state
 .minimax/
 .mavis/
+
+# Vite cache
+.vite/
