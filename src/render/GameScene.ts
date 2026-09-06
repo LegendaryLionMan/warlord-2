@@ -11,6 +11,7 @@ import { generateCities, captureCity } from '../sim/city';
 import { generateFeatures } from '../sim/features';
 import { endPlayerTurn } from '../sim/turn';
 import { endAllAiTurns } from '../sim/ai';
+import { checkOutcome } from '../sim/win';
 import { CombatScene } from './CombatScene';
 import type { Unit } from '../sim/state';
 
@@ -168,6 +169,18 @@ export class GameScene extends Phaser.Scene {
       updateHud({ message: `AI: ${order.join(', ')} acted. Your turn.` });
     }
     this.drawMinimap();
+    this.checkOutcome();
+  }
+
+  private checkOutcome(): void {
+    const outcome = checkOutcome(this.state);
+    if (outcome === 'won') {
+      this.state.phase = 'won';
+      updateHud({ message: '🏆 VICTORY! You hold 75% of the kingdom.' });
+    } else if (outcome === 'lost') {
+      this.state.phase = 'lost';
+      updateHud({ message: '💀 DEFEAT. Your faction is destroyed.' });
+    }
   }
 
   private findPassableStart(): { x: number; y: number } | null {
