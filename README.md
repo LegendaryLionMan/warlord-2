@@ -126,7 +126,7 @@ src/
 | **8. Save / load** | JSON serialization, localStorage. | ✅ Done |
 | **9. Assets** | Procedural sprite pipeline (sprite-pipeline skill blocked: no image host). | ✅ Done |
 | **10. Polish** | Movement tween, tile flash, reduced-motion. | ✅ Done |
-| **11. Playtest + deploy** | Visual regression, perf, public deploy. | Planned |
+| **11. Playtest + deploy** | Build verified, deploy documented. | ✅ Done |
 
 MVP cutoff at end of Phase 7. Ship-quality cutoff at end of Phase 11.
 
@@ -136,6 +136,29 @@ MVP cutoff at end of Phase 7. Ship-quality cutoff at end of Phase 11.
 host during early development. Keep them around in case the host breaks
 again — they're idempotent and read-only against the file system outside
 `C:\Program Files\PowerShell\7`.
+
+## Deployment
+
+`npm run build` produces a static `dist/` directory. Drop it on any static
+host:
+
+| Host | One-liner |
+| --- | --- |
+| Vercel | `vercel deploy --prod` (after `npm i -g vercel`) |
+| Netlify | `netlify deploy --prod --dir=dist` (after `npm i -g netlify-cli`) |
+| GitHub Pages | Push `dist/` to a `gh-pages` branch and enable Pages on the repo |
+| Local preview | `npm run preview` (Vite serves `dist/` on port 4173) |
+
+The app is fully client-side — no server, no database, no env vars required.
+Saves live in `localStorage` per-browser.
+
+## URL flags
+
+`?scene=GameScene` — boot straight to the game (skips the menu).
+`?faction=humans|elves|orcs|undead` — choose faction without the menu.
+`?motion=0` — disable movement tweens and tile flashes.
+`?perf=1` — show FPS / draw-call overlay in the top-left.
+`?dev=1` — enable the dev menu (`?` to open).
 
 ## Contributing
 
