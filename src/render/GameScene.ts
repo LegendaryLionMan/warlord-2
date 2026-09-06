@@ -6,6 +6,9 @@ import { createInitialState, type FactionId, type GameState, type OwnerId } from
 import { PerfOverlay } from '../debug/perf';
 import { bfsReachable } from '../sim/pathfinding';
 import { createArmy, movementBudget, consumeMovement, type ArmyLike } from '../sim/army';
+import { resolveCombat, combatTerrainFor, type CombatResult } from '../sim/combat';
+import { CombatScene } from './CombatScene';
+import type { Unit } from '../sim/state';
 
 const PHASER_FACTION_NUM_COLORS: Record<OwnerId, number> = {
   humans: 0x3b6fb6,
@@ -53,7 +56,19 @@ export class GameScene extends Phaser.Scene {
 
     // Find a passable starting tile for the player army
     const start = this.findPassableStart();
-    if (start) createArmy(this.state, start.x, start.y, this.faction, ['militia', 'spearman']);
+    if (start) {
+      const playerArmy = createArmy(this.state, start.x, start.y, this.faction, ['militia', 'spearman']);
+      // Spawn one enemy army a few tiles away for the player to engage.
+      const enemyStart = this.findPassableStart();
+      if (enemyStart) {
+        const ex = Math.min(this.state.mapWidth - 1, enemyStart.x + 4);
+        const ey = Math.min(this.state.mapHeight - 1, enemyStart.y + 4);
+        if (isPassable(this.state, ex, ey)) {
+          createArmy(this.state, ex, ey, 'undead', ['militia', 'militia']);
+        }
+      }
+      void playerArmy;
+    }
 
     this.cameras.main.setBackgroundColor(UI_COLORS_NUM.background);
     this.cameras.main.setBounds(0, 0, this.state.mapWidth * TILE_SIZE, this.state.mapHeight * TILE_SIZE);
@@ -234,6 +249,12 @@ export class GameScene extends Phaser.Scene {
 
     // If we have a movement range and the click is in it, move the army
     if (army && !army.hasMoved && this.isInRange(x, y)) {
+      // Check for enemy army at destination
+      const enemy = this.state.armies.find((a) => a !== army && a.x === x && a.y === y);
+      if (enemy) {
+        this.initiateCombat(army, enemy);
+        return;
+      }
       this.moveArmyTo(army, x, y);
       this.clearRange();
       this.selectTile(x, y, tile.terrain);
@@ -246,6 +267,68 @@ export class GameScene extends Phaser.Scene {
     this.clearRange();
     this.selectTile(x, y, tile.terrain);
     this.updateHudForTile();
+  }
+
+  private initiateCombat(attacker: GameState['armies'][number], defender: GameState['armies'][number]): void {
+    const terrain = combatTerrainFor(this.state, defender.x, defender.y);
+    const result = resolveCombat(attacker, defender, terrain);
+    // Stash the result on window for CombatScene to read.
+    (window as unknown as { combatPayload: unknown }).combatPayload = { attacker, result };
+    // Listen once for the resolve event from CombatScene.
+    this.events.once('resume', () => this.applyCombatResult(attacker, defender, result));
+    this.scene.launch(CombatScene.KEY);
+  }
+
+  private applyCombatResult(
+    attacker: GameState['armies'][number],
+    defender: GameState['armies'][number],
+    result: CombatResult,
+  ): void {
+    // Attacker survivors
+    attacker.units = result.attackUnits.map((u) => ({
+      id: u.id,
+      hp: u.hp,
+      maxHp: u.maxHp,
+      attack: u.attack,
+      defense: u.defense,
+      moves: 0,
+      maxMoves: u.maxMoves,
+      ranged: u.ranged,
+      range: u.range,
+      vsCavalry: u.vsCavalry,
+      magic: u.magic,
+    } as Unit));
+    consumeMovement(attacker);
+
+    // Defender
+    if (result.defendUnits.length === 0) {
+      const idx = this.state.armies.indexOf(defender);
+      if (idx > -1) this.state.armies.splice(idx, 1);
+    } else {
+      defender.units = result.defendUnits.map((u) => ({
+        id: u.id,
+        hp: u.hp,
+        maxHp: u.maxHp,
+        attack: u.attack,
+        defense: u.defense,
+        moves: 0,
+        maxMoves: u.maxMoves,
+        ranged: u.ranged,
+        range: u.range,
+        vsCavalry: u.vsCavalry,
+        magic: u.magic,
+      } as Unit));
+    }
+
+    this.clearRange();
+    this.drawMinimap();
+    if (this.armySprite && attacker) {
+      this.armySprite.setPosition(
+        attacker.x * TILE_SIZE + TILE_SIZE / 2,
+        attacker.y * TILE_SIZE + TILE_SIZE / 2,
+      );
+    }
+    updateHud({ armies: this.state.armies.length });
   }
 
   private showArmyRange(army: ArmyLike): void {
