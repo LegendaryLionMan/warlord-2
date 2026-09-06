@@ -9,8 +9,8 @@ populated. Re-running the scripts when the API is healthier will fill
 in the assets; the loader and renderer already support them with a
 graceful procedural fallback in the meantime.
 
-**Commit:** `<see git log>` — Phase 12: AI-generated art pipeline + integration
-**Issue:** `<see GitHub>`
+**Commit:** `eb78b3c` — Phase 12: AI-generated art & audio pipeline
+**Issue:** https://github.com/LegendaryLionMan/warlords2-clone/issues/7
 
 ## What this phase ships
 
