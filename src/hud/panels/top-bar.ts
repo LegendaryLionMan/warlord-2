@@ -37,7 +37,10 @@ export function mountTopBar(host: HTMLElement, onEndTurn: () => void): TopBarEle
   const endTurnBtn = document.createElement('button');
   endTurnBtn.className = 'end-turn-btn';
   endTurnBtn.textContent = 'End Turn';
-  endTurnBtn.addEventListener('click', onEndTurn);
+  endTurnBtn.addEventListener('click', () => {
+    onEndTurn();
+    endTurnBtn.blur();
+  });
 
   root.append(turn, gold, cities, armies, endTurnBtn);
   host.appendChild(root);

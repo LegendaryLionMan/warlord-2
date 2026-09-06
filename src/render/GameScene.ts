@@ -1,12 +1,15 @@
 import Phaser from 'phaser';
 import { UI_COLORS_NUM, TILE_SIZE } from '../config';
-import { updateHud } from '../hud/hud';
+import { updateHud, setEndTurnHandler } from '../hud/hud';
 import { generateMap, tileAt, isPassable } from '../sim/map';
 import { createInitialState, type FactionId, type GameState, type OwnerId } from '../sim/state';
 import { PerfOverlay } from '../debug/perf';
 import { bfsReachable } from '../sim/pathfinding';
 import { createArmy, movementBudget, consumeMovement, type ArmyLike } from '../sim/army';
 import { resolveCombat, combatTerrainFor, type CombatResult } from '../sim/combat';
+import { generateCities, captureCity } from '../sim/city';
+import { generateFeatures } from '../sim/features';
+import { endPlayerTurn } from '../sim/turn';
 import { CombatScene } from './CombatScene';
 import type { Unit } from '../sim/state';
 
@@ -33,6 +36,8 @@ export class GameScene extends Phaser.Scene {
   private rangeOverlays: Phaser.GameObjects.Rectangle[] = [];
   private minimap!: Phaser.GameObjects.Graphics;
   private armySprite: Phaser.GameObjects.Rectangle | null = null;
+  private citySprites: Phaser.GameObjects.Rectangle[] = [];
+  private featureSprites: Phaser.GameObjects.Rectangle[] = [];
 
   private isPanning = false;
   private panStartX = 0;
@@ -53,6 +58,8 @@ export class GameScene extends Phaser.Scene {
     this.state.playerFaction = this.faction;
     this.state.phase = 'playing';
     generateMap(this.state, 42);
+    generateCities(this.state, 42);
+    generateFeatures(this.state, 42);
 
     // Find a passable starting tile for the player army
     const start = this.findPassableStart();
@@ -74,6 +81,8 @@ export class GameScene extends Phaser.Scene {
     this.cameras.main.setBounds(0, 0, this.state.mapWidth * TILE_SIZE, this.state.mapHeight * TILE_SIZE);
 
     this.renderMap();
+    this.renderCities();
+    this.renderFeatures();
     this.renderArmy();
 
     // Center the camera on the player's army at the start.
@@ -95,13 +104,62 @@ export class GameScene extends Phaser.Scene {
 
     this.setupInput();
     this.perf = new PerfOverlay(this);
+    setEndTurnHandler(() => this.endTurn());
 
     updateHud({
       turn: this.state.turn,
       gold: this.state.gold,
-      cities: this.state.cities.length,
+      cities: this.state.cities.filter((c) => c.owner === this.state.playerFaction).length,
       armies: this.state.armies.length,
       faction: this.state.playerFaction,
+    });
+  }
+
+  private renderCities(): void {
+    for (const city of this.state.cities) {
+      const color = PHASER_FACTION_NUM_COLORS[city.owner] ?? 0xaaaaaa;
+      const r = this.add.rectangle(
+        city.x * TILE_SIZE + TILE_SIZE / 2,
+        city.y * TILE_SIZE + TILE_SIZE / 2,
+        TILE_SIZE * 0.6,
+        TILE_SIZE * 0.6,
+        color,
+      );
+      r.setStrokeStyle(2, 0xffffff, 0.8);
+      r.setDepth(40);
+      this.citySprites.push(r);
+    }
+  }
+
+  private renderFeatures(): void {
+    const FEATURE_COLORS: Record<'mine' | 'ruin' | 'armory', number> = {
+      mine: 0xaaaaaa,
+      ruin: 0x8a4aaa,
+      armory: 0x8a5a2a,
+    };
+    for (const f of this.state.features) {
+      const r = this.add.rectangle(
+        f.x * TILE_SIZE + TILE_SIZE / 2,
+        f.y * TILE_SIZE + TILE_SIZE / 2,
+        TILE_SIZE * 0.5,
+        TILE_SIZE * 0.5,
+        FEATURE_COLORS[f.type],
+      );
+      r.setStrokeStyle(1, 0x000000, 0.4);
+      r.setDepth(20);
+      this.featureSprites.push(r);
+    }
+  }
+
+  /** Public hook so the HUD can call end-turn and refresh state. */
+  public endTurn(): void {
+    const income = endPlayerTurn(this.state);
+    updateHud({
+      turn: this.state.turn,
+      gold: this.state.gold,
+      cities: this.state.cities.filter((c) => c.owner === this.state.playerFaction).length,
+      armies: this.state.armies.length,
+      message: `Turn ${this.state.turn} — +${income}g income`,
     });
   }
 
@@ -369,6 +427,22 @@ export class GameScene extends Phaser.Scene {
     if (this.armySprite) {
       this.armySprite.setPosition(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
     }
+    // Capture a city if we walked onto one (and it's not already ours).
+    const city = this.state.cities.find((c) => c.x === x && c.y === y);
+    if (city && city.owner !== army.owner) {
+      captureCity(army.owner, city, [...city.garrison]);
+      this.refreshCitySprites();
+      updateHud({
+        cities: this.state.cities.filter((c) => c.owner === this.state.playerFaction).length,
+        message: `Captured ${city.name}!`,
+      });
+    }
+  }
+
+  private refreshCitySprites(): void {
+    for (const s of this.citySprites) s.destroy();
+    this.citySprites = [];
+    this.renderCities();
   }
 
   private selectTile(x: number, y: number, terrain: 'plains' | 'forest' | 'hills' | 'mountains' | 'water'): void {

@@ -9,6 +9,9 @@ import { mountSidePanel } from './panels/side-panel';
 import { mountMessageBox } from './panels/message-box';
 
 let mounted = false;
+let onEndTurn: () => void = () => {
+  pushHudSnapshot({ message: 'End Turn — wired in Phase 4' });
+};
 
 /** Mount the HUD once. Idempotent. */
 export function initHud(): void {
@@ -21,11 +24,22 @@ export function initHud(): void {
   host.innerHTML = '';
   mountMessageBox(host);
   mountSidePanel(host);
-  mountTopBar(host, () => {
-    // Phase 0: end-turn is a no-op. Phase 4 wires this to sim/turn.ts.
-    pushHudSnapshot({ message: 'End Turn — wired in Phase 4' });
-  });
+  mountTopBar(host, onEndTurn);
   mounted = true;
+}
+
+/** Set the end-turn handler. Called by the GameScene on create. */
+export function setEndTurnHandler(handler: () => void): void {
+  onEndTurn = handler;
+  if (mounted) {
+    const btn = document.querySelector<HTMLButtonElement>('.end-turn-btn');
+    if (btn) {
+      btn.onclick = () => {
+        handler();
+        btn.blur();
+      };
+    }
+  }
 }
 
 /** Push a partial snapshot to the HUD. */
