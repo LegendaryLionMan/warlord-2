@@ -1,13 +1,23 @@
 import Phaser from 'phaser';
 import { UI_COLORS_NUM, TILE_SIZE } from '../config';
 import { updateHud } from '../hud/hud';
-import { generateMap, tileAt } from '../sim/map';
-import { createInitialState, type FactionId, type GameState, type TerrainId } from '../sim/state';
+import { generateMap, tileAt, isPassable } from '../sim/map';
+import { createInitialState, type FactionId, type GameState, type OwnerId } from '../sim/state';
 import { PerfOverlay } from '../debug/perf';
+import { bfsReachable } from '../sim/pathfinding';
+import { createArmy, movementBudget, consumeMovement, type ArmyLike } from '../sim/army';
+
+const PHASER_FACTION_NUM_COLORS: Record<OwnerId, number> = {
+  humans: 0x3b6fb6,
+  elves: 0x2f8a4a,
+  orcs: 0x9b2a2a,
+  undead: 0x6b3a8a,
+  neutral: 0x666666,
+};
 
 /**
- * Game scene. Renders the procedural map, handles camera pan/zoom, and
- * click-to-select tile. Phase 2+ adds armies and movement on top.
+ * Game scene. Renders the procedural map, the player army, the movement
+ * range highlight, and handles camera + selection + click-to-move.
  */
 export class GameScene extends Phaser.Scene {
   static readonly KEY = 'GameScene';
@@ -17,9 +27,10 @@ export class GameScene extends Phaser.Scene {
   private state!: GameState;
   private tileSprites: Phaser.GameObjects.Rectangle[][] = [];
   private selectionRect: Phaser.GameObjects.Rectangle | null = null;
+  private rangeOverlays: Phaser.GameObjects.Rectangle[] = [];
   private minimap!: Phaser.GameObjects.Graphics;
+  private armySprite: Phaser.GameObjects.Rectangle | null = null;
 
-  // Camera input
   private isPanning = false;
   private panStartX = 0;
   private panStartY = 0;
@@ -35,41 +46,41 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
-    const { width: _w, height: _h } = this.scale;
-
-    // Initialize game state and generate map
     this.state = createInitialState();
     this.state.playerFaction = this.faction;
     this.state.phase = 'playing';
     generateMap(this.state, 42);
 
-    // Camera setup — interactive for panning, scroll for zoom
+    // Find a passable starting tile for the player army
+    const start = this.findPassableStart();
+    if (start) createArmy(this.state, start.x, start.y, this.faction, ['militia', 'spearman']);
+
     this.cameras.main.setBackgroundColor(UI_COLORS_NUM.background);
     this.cameras.main.setBounds(0, 0, this.state.mapWidth * TILE_SIZE, this.state.mapHeight * TILE_SIZE);
 
-    // Render all tiles
     this.renderMap();
+    this.renderArmy();
 
-    // Selection rectangle (initially hidden)
+    // Center the camera on the player's army at the start.
+    const army = this.state.armies[0];
+    if (army) {
+      this.cameras.main.centerOn(army.x * TILE_SIZE + TILE_SIZE / 2, army.y * TILE_SIZE + TILE_SIZE / 2);
+    }
+
     this.selectionRect = this.add.rectangle(0, 0, TILE_SIZE, TILE_SIZE, 0xffd700, 0);
     this.selectionRect.setStrokeStyle(3, 0xffd700, 1);
     this.selectionRect.setVisible(false);
     this.selectionRect.setDepth(100);
 
-    // Minimap (bottom-right corner)
     this.minimap = this.add.graphics();
     this.minimap.setScrollFactor(0);
     this.minimap.setDepth(50);
     this.minimap.setPosition(0, 0);
     this.drawMinimap();
 
-    // Input handling
     this.setupInput();
-
-    // Performance overlay
     this.perf = new PerfOverlay(this);
 
-    // Initial HUD push
     updateHud({
       turn: this.state.turn,
       gold: this.state.gold,
@@ -77,6 +88,23 @@ export class GameScene extends Phaser.Scene {
       armies: this.state.armies.length,
       faction: this.state.playerFaction,
     });
+  }
+
+  private findPassableStart(): { x: number; y: number } | null {
+    // Center the start as close to (width/2, height/2) as passable tiles allow
+    const cx = Math.floor(this.state.mapWidth / 2);
+    const cy = Math.floor(this.state.mapHeight / 2);
+    for (let r = 0; r < Math.max(this.state.mapWidth, this.state.mapHeight); r++) {
+      for (let dy = -r; dy <= r; dy++) {
+        for (let dx = -r; dx <= r; dx++) {
+          const x = cx + dx;
+          const y = cy + dy;
+          if (x < 0 || y < 0 || x >= this.state.mapWidth || y >= this.state.mapHeight) continue;
+          if (isPassable(this.state, x, y)) return { x, y };
+        }
+      }
+    }
+    return null;
   }
 
   private renderMap(): void {
@@ -99,6 +127,20 @@ export class GameScene extends Phaser.Scene {
       }
       this.tileSprites.push(row);
     }
+  }
+
+  private renderArmy(): void {
+    const army = this.state.armies[0];
+    if (!army) return;
+    this.armySprite = this.add.rectangle(
+      army.x * TILE_SIZE + TILE_SIZE / 2,
+      army.y * TILE_SIZE + TILE_SIZE / 2,
+      TILE_SIZE * 0.7,
+      TILE_SIZE * 0.7,
+      PHASER_FACTION_NUM_COLORS[army.owner],
+    );
+    this.armySprite.setStrokeStyle(2, 0xffffff, 0.7);
+    this.armySprite.setDepth(50);
   }
 
   private drawMinimap(): void {
@@ -125,20 +167,28 @@ export class GameScene extends Phaser.Scene {
         );
       }
     }
+    // Army dot on minimap
+    const army = this.state.armies[0];
+    if (army) {
+      this.minimap.fillStyle(0xffd700, 1);
+      this.minimap.fillRect(
+        this.scale.width - W - 12 + army.x * cellW,
+        this.scale.height - H - 12 + army.y * cellH,
+        Math.max(2, cellW * 1.5),
+        Math.max(2, cellH * 1.5),
+      );
+    }
     this.minimap.lineStyle(2, 0xffd700, 1);
     this.minimap.strokeRect(this.scale.width - W - 12, this.scale.height - H - 12, W, H);
   }
 
   private setupInput(): void {
-    // Wheel zoom
-    this.input.on('wheel', (_pointer: Phaser.Input.Pointer, _gameObjects: unknown[], _deltaX: number, deltaY: number) => {
+    this.input.on('wheel', (_p: Phaser.Input.Pointer, _g: unknown[], _dx: number, dy: number) => {
       const cam = this.cameras.main;
-      const oldZoom = cam.zoom;
-      const newZoom = Phaser.Math.Clamp(oldZoom * (deltaY > 0 ? 0.9 : 1.1), 0.5, 2);
+      const newZoom = Phaser.Math.Clamp(cam.zoom * (dy > 0 ? 0.9 : 1.1), 0.5, 2);
       cam.zoomTo(newZoom, 100);
     });
 
-    // Middle-click drag pan
     this.input.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
       if (pointer.middleButtonDown()) {
         this.isPanning = true;
@@ -149,12 +199,9 @@ export class GameScene extends Phaser.Scene {
       } else if (pointer.leftButtonDown()) {
         const worldX = this.cameras.main.scrollX + pointer.x;
         const worldY = this.cameras.main.scrollY + pointer.y;
-        const tileX = Math.floor(worldX / TILE_SIZE);
-        const tileY = Math.floor(worldY / TILE_SIZE);
-        const tile = tileAt(this.state, tileX, tileY);
-        if (tile) {
-          this.selectTile(tileX, tileY, tile.terrain);
-        }
+        const tx = Math.floor(worldX / TILE_SIZE);
+        const ty = Math.floor(worldY / TILE_SIZE);
+        this.handleLeftClick(tx, ty);
       }
     });
 
@@ -172,7 +219,76 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
-  private selectTile(x: number, y: number, terrain: TerrainId): void {
+  private handleLeftClick(x: number, y: number): void {
+    const tile = tileAt(this.state, x, y);
+    if (!tile) return;
+
+    // If the player army is at (x, y) and hasn't moved, show its range
+    const army = this.state.armies[0];
+    if (army && !army.hasMoved && army.x === x && army.y === y) {
+      this.showArmyRange(army);
+      this.selectTile(x, y, tile.terrain);
+      this.updateArmyHud(army);
+      return;
+    }
+
+    // If we have a movement range and the click is in it, move the army
+    if (army && !army.hasMoved && this.isInRange(x, y)) {
+      this.moveArmyTo(army, x, y);
+      this.clearRange();
+      this.selectTile(x, y, tile.terrain);
+      this.updateArmyHud(army);
+      this.drawMinimap();
+      return;
+    }
+
+    // Default: select tile only
+    this.clearRange();
+    this.selectTile(x, y, tile.terrain);
+    this.updateHudForTile();
+  }
+
+  private showArmyRange(army: ArmyLike): void {
+    this.clearRange();
+    const reachable = bfsReachable(this.state, army.x, army.y, movementBudget(army));
+    for (const t of reachable) {
+      const overlay = this.add.rectangle(
+        t.x * TILE_SIZE + TILE_SIZE / 2,
+        t.y * TILE_SIZE + TILE_SIZE / 2,
+        TILE_SIZE,
+        TILE_SIZE,
+        0xffd700,
+        0.25,
+      );
+      overlay.setStrokeStyle(1, 0xffd700, 0.7);
+      overlay.setDepth(20);
+      this.rangeOverlays.push(overlay);
+    }
+  }
+
+  private clearRange(): void {
+    for (const o of this.rangeOverlays) o.destroy();
+    this.rangeOverlays = [];
+  }
+
+  private isInRange(x: number, y: number): boolean {
+    return this.rangeOverlays.some((o) => {
+      const ox = Math.round((o.x - TILE_SIZE / 2) / TILE_SIZE);
+      const oy = Math.round((o.y - TILE_SIZE / 2) / TILE_SIZE);
+      return ox === x && oy === y;
+    });
+  }
+
+  private moveArmyTo(army: GameState['armies'][number], x: number, y: number): void {
+    army.x = x;
+    army.y = y;
+    consumeMovement(army);
+    if (this.armySprite) {
+      this.armySprite.setPosition(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
+    }
+  }
+
+  private selectTile(x: number, y: number, terrain: 'plains' | 'forest' | 'hills' | 'mountains' | 'water'): void {
     if (this.selectionRect) {
       this.selectionRect.setPosition(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2);
       this.selectionRect.setVisible(true);
@@ -185,6 +301,41 @@ export class GameScene extends Phaser.Scene {
     });
   }
 
+  private updateArmyHud(army: GameState['armies'][number]): void {
+    updateHud({
+      selectedName: `Army (${army.units.length} units)`,
+      selectedTerrain: null,
+      selectedXY: { x: army.x, y: army.y },
+    });
+    // Side panel updated via dedicated update
+    const panel = document.querySelector('.side-panel .panel-body');
+    if (panel) {
+      panel.innerHTML = `
+        <p class="selected">Your Army (${army.units.length} units)</p>
+        <p class="coord">(${army.x}, ${army.y})</p>
+        <ul class="unit-list">
+          ${army.units
+            .map(
+              (u) => `
+            <li class="unit-row">
+              <span class="unit-name-text">${u.id}</span>
+              <span class="unit-hp-text">${u.hp}/${u.maxHp} HP</span>
+            </li>
+          `,
+            )
+            .join('')}
+        </ul>
+      `;
+    }
+  }
+
+  private updateHudForTile(): void {
+    const panel = document.querySelector('.side-panel .panel-body');
+    if (panel) {
+      panel.innerHTML = '<p class="empty">Click on a city, army, or tile.</p>';
+    }
+  }
+
   update(_time: number, _delta: number): void {
     const simStart = performance.now();
     const simMs = performance.now() - simStart;
@@ -192,8 +343,7 @@ export class GameScene extends Phaser.Scene {
   }
 }
 
-/** 24-bit color integers per terrain for Phaser. */
-const TERRAIN_NUM_COLORS: Record<TerrainId, { fill: number; edge: number }> = {
+const TERRAIN_NUM_COLORS: Record<'plains' | 'forest' | 'hills' | 'mountains' | 'water', { fill: number; edge: number }> = {
   plains: { fill: 0x6b8e5a, edge: 0x4a6e3a },
   forest: { fill: 0x2d5a2d, edge: 0x0f3f0f },
   hills: { fill: 0x8b6b4a, edge: 0x6a4a2a },
