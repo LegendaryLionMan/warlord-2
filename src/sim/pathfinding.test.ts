@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { createInitialState } from './state';
 import { generateMap } from './map';
-import { bfsReachable } from './pathfinding';
+import { bfsReachable, aStarPath } from './pathfinding';
 
 describe('bfsReachable', () => {
   it('returns just the start tile with 0 budget', () => {
@@ -72,5 +72,38 @@ describe('bfsReachable', () => {
       expect(t.y).toBeGreaterThanOrEqual(0);
       expect(t.y).toBeLessThan(4);
     }
+  });
+});
+
+describe('aStarPath', () => {
+  it('returns single point when start equals goal', () => {
+    const s = createInitialState();
+    s.map = Array.from({ length: 4 }, () =>
+      Array.from({ length: 4 }, () => ({ terrain: 'plains' as const, variation: 0 })),
+    );
+    expect(aStarPath(s, { x: 1, y: 1 }, { x: 1, y: 1 })).toEqual([{ x: 1, y: 1 }]);
+  });
+
+  it('finds a direct path on plains', () => {
+    const s = createInitialState();
+    s.map = Array.from({ length: 8 }, () =>
+      Array.from({ length: 8 }, () => ({ terrain: 'plains' as const, variation: 0 })),
+    );
+    const path = aStarPath(s, { x: 0, y: 0 }, { x: 4, y: 0 });
+    expect(path[0]).toEqual({ x: 0, y: 0 });
+    expect(path[path.length - 1]).toEqual({ x: 4, y: 0 });
+    expect(path.length).toBe(5); // 5 steps: 0,0 -> 1,0 -> 2,0 -> 3,0 -> 4,0
+  });
+
+  it('returns empty for unreachable goal', () => {
+    const s = createInitialState({ mapWidth: 4, mapHeight: 4 });
+    s.map = [
+      [{ terrain: 'plains', variation: 0 }, { terrain: 'plains', variation: 0 }, { terrain: 'mountains', variation: 0 }, { terrain: 'mountains', variation: 0 }],
+      [{ terrain: 'plains', variation: 0 }, { terrain: 'plains', variation: 0 }, { terrain: 'mountains', variation: 0 }, { terrain: 'mountains', variation: 0 }],
+      [{ terrain: 'plains', variation: 0 }, { terrain: 'plains', variation: 0 }, { terrain: 'plains', variation: 0 }, { terrain: 'plains', variation: 0 }],
+      [{ terrain: 'plains', variation: 0 }, { terrain: 'plains', variation: 0 }, { terrain: 'plains', variation: 0 }, { terrain: 'plains', variation: 0 }],
+    ];
+    // Goal (3,0) is on mountains, unreachable.
+    expect(aStarPath(s, { x: 0, y: 0 }, { x: 3, y: 0 })).toEqual([]);
   });
 });

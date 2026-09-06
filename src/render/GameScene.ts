@@ -10,6 +10,7 @@ import { resolveCombat, combatTerrainFor, type CombatResult } from '../sim/comba
 import { generateCities, captureCity } from '../sim/city';
 import { generateFeatures } from '../sim/features';
 import { endPlayerTurn } from '../sim/turn';
+import { endAllAiTurns } from '../sim/ai';
 import { CombatScene } from './CombatScene';
 import type { Unit } from '../sim/state';
 
@@ -161,6 +162,12 @@ export class GameScene extends Phaser.Scene {
       armies: this.state.armies.length,
       message: `Turn ${this.state.turn} — +${income}g income`,
     });
+    // Now run AI turns. Synchronous; small maps finish in milliseconds.
+    const order = endAllAiTurns(this.state);
+    if (order.length > 0) {
+      updateHud({ message: `AI: ${order.join(', ')} acted. Your turn.` });
+    }
+    this.drawMinimap();
   }
 
   private findPassableStart(): { x: number; y: number } | null {

@@ -62,10 +62,17 @@ export function createCity(
   return city;
 }
 
+/** The list of factions available to the AI (everything except the player). */
+function aiFactions(state: GameState): OwnerId[] {
+  const all: OwnerId[] = ['humans', 'elves', 'orcs', 'undead'];
+  return all.filter((f) => f !== state.playerFaction);
+}
+
 /** Procedurally place cities on the map with min-distance spacing. */
 export function generateCities(state: GameState, seed = Date.now()): void {
   const rand = mulberry32(seed);
   const minDist = 10;
+  const aiList = aiFactions(state);
   const target = 10 + state.factionCount * 2;
   let index = 0;
   for (let i = 0; i < target; i++) {
@@ -85,9 +92,8 @@ export function generateCities(state: GameState, seed = Date.now()): void {
       }
       if (tooClose) continue;
       const size = (1 + Math.floor(rand() * 3)) as 1 | 2 | 3;
-      const owner: OwnerId = i < state.factionCount ? `enemy${i + 1}` as OwnerId : 'neutral';
+      const owner: OwnerId = i < aiList.length ? aiList[i]! : 'neutral';
       const city = createCity(state, x, y, size, owner, index);
-      // Garrison with a few militia for non-neutral cities.
       if (owner !== 'neutral') {
         for (let g = 0; g < size + 1; g++) city.garrison.push(createUnit('militia', owner));
       }

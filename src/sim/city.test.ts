@@ -69,4 +69,15 @@ describe('generateCities', () => {
       expect(['plains', 'forest', 'hills']).toContain(t);
     }
   });
+
+  it('AI cities have the right owner', () => {
+    const s = createInitialState({ factionCount: 3, playerFaction: 'humans' });
+    generateMap(s, 7);
+    generateCities(s, 7);
+    const aiCities = s.cities.filter((c) => c.owner !== 'humans' && c.owner !== 'neutral');
+    expect(aiCities.length).toBeGreaterThan(0);
+    for (const c of aiCities) {
+      expect(['elves', 'orcs', 'undead']).toContain(c.owner);
+    }
+  });
 });

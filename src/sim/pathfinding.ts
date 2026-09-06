@@ -24,11 +24,6 @@ const NEIGHBOR_OFFSETS: ReadonlyArray<readonly [number, number]> = [
   [-1, 0],
 ];
 
-/**
- * BFS from (startX, startY) with `movePoints` budget. Returns every tile
- * the army can stand on at the end of its move — including tiles reached
- * with a partial budget remaining.
- */
 export function bfsReachable(
   state: GameState,
   startX: number,
@@ -67,3 +62,85 @@ export function bfsReachable(
   }
   return result;
 }
+
+/** Manhattan distance heuristic. Admissible for grid movement. */
+function heuristic(x1: number, y1: number, x2: number, y2: number): number {
+  return Math.abs(x1 - x2) + Math.abs(y1 - y2);
+}
+
+interface AStarNode {
+  x: number;
+  y: number;
+  g: number;
+  f: number;
+}
+
+/**
+ * A* pathfinding from `start` to `goal` using terrain-weighted cost.
+ * Returns the path (including start and goal) or empty if unreachable.
+ */
+export function aStarPath(
+  state: GameState,
+  start: { x: number; y: number },
+  goal: { x: number; y: number },
+): Array<{ x: number; y: number }> {
+  if (start.x === goal.x && start.y === goal.y) return [start];
+
+  const open = new Set<string>();
+  const cameFrom = new Map<string, { x: number; y: number }>();
+  const gScore = new Map<string, number>();
+  const fScore = new Map<string, number>();
+
+  const startKey = `${start.x},${start.y}`;
+  gScore.set(startKey, 0);
+  fScore.set(startKey, heuristic(start.x, start.y, goal.x, goal.y));
+  open.add(startKey);
+
+  while (open.size > 0) {
+    // Find node in `open` with lowest fScore.
+    let currentKey = '';
+    let lowestF = Infinity;
+    for (const key of open) {
+      const f = fScore.get(key) ?? Infinity;
+      if (f < lowestF) {
+        lowestF = f;
+        currentKey = key;
+      }
+    }
+    if (!currentKey) break;
+    if (currentKey === `${goal.x},${goal.y}`) {
+      // Reconstruct path
+      const path: Array<{ x: number; y: number }> = [goal];
+      let cur = currentKey;
+      while (cameFrom.has(cur)) {
+        const prev = cameFrom.get(cur)!;
+        path.unshift(prev);
+        cur = `${prev.x},${prev.y}`;
+      }
+      return path;
+    }
+    open.delete(currentKey);
+    const [cx, cy] = currentKey.split(',').map(Number) as [number, number];
+    for (const [dx, dy] of NEIGHBOR_OFFSETS) {
+      const nx = cx + dx;
+      const ny = cy + dy;
+      if (nx < 0 || nx >= state.mapWidth || ny < 0 || ny >= state.mapHeight) continue;
+      if (!isPassable(state, nx, ny)) continue;
+      const tile = state.map[ny]?.[nx];
+      if (!tile) continue;
+      const moveCost = TERRAIN[tile.terrain].moveCost;
+      if (moveCost === Infinity) continue;
+      const neighborKey = `${nx},${ny}`;
+      const tentativeG = (gScore.get(currentKey) ?? Infinity) + moveCost;
+      if (tentativeG < (gScore.get(neighborKey) ?? Infinity)) {
+        cameFrom.set(neighborKey, { x: cx, y: cy });
+        gScore.set(neighborKey, tentativeG);
+        fScore.set(neighborKey, tentativeG + heuristic(nx, ny, goal.x, goal.y));
+        if (!open.has(neighborKey)) open.add(neighborKey);
+      }
+    }
+  }
+  return [];
+}
+
+export type { AStarNode };

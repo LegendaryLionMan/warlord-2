@@ -120,7 +120,7 @@ src/
 | **2. Movement** | Player army, BFS movement, click-to-move. | ✅ Done |
 | **3. Combat** | Stack model, combat resolution, hero bonuses. | ✅ Done |
 | **4. Cities** | City capture, income, production, mines, ruins. | ✅ Done |
-| **5. AI** | A* pathfinding, AI strategy. | Planned |
+| **5. AI** | A* pathfinding, AI strategy. | ✅ Done |
 | **6. Faction identity** | Faction bonuses, hero abilities, armories. | Planned |
 | **7. Win conditions** | 75 % capture or elimination. | Planned |
 | **8. Save / load** | JSON serialization, localStorage. | Planned |
