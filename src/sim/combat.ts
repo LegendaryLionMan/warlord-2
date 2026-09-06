@@ -87,8 +87,8 @@ export function resolveCombat(
   defender: Army,
   terrain: TerrainId,
 ): CombatResult {
-  let attackUnits = applyFactionBonus(applyHeroBonuses(sortWeakestFirst(attacker.units), attacker.hero), attacker.owner);
-  let defendUnits = applyFactionBonus(applyHeroBonuses(sortWeakestFirst(defender.units), defender.hero), defender.owner);
+  const attackUnits: Unit[] = applyFactionBonus(applyHeroBonuses(sortWeakestFirst(attacker.units), attacker.hero), attacker.owner);
+  const defendUnits: Unit[] = applyFactionBonus(applyHeroBonuses(sortWeakestFirst(defender.units), defender.hero), defender.owner);
 
   const defBonus = terrainDefenseBonus(terrain);
 
