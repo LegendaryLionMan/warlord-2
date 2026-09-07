@@ -117,7 +117,7 @@ function Invoke-GenBatch { param([string[]]$Ids)
 
 # === Main ==================================================================
 $allIds = @($Tracks.Keys)
-$batchSize = 5
+$batchSize = 1
 $totalBatches = [Math]::Ceiling($allIds.Count / $batchSize)
 Write-Host "=== Generating $($allIds.Count) tracks in $totalBatches batches ==="
 $sw = [System.Diagnostics.Stopwatch]::StartNew()
