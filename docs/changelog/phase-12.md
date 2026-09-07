@@ -1,15 +1,21 @@
 # Phase 12 — AI-Generated Art & Audio
 
-**Status:** Integration complete; asset generation scripts shipped.
-The `scripts/gen-sprites.ps1` (49 images) and `scripts/gen-music.ps1`
-(17 audio tracks) generation pipeline is in place. The matrix API
-returned 0-result responses for ~30+ minutes during the integration
-window, so the actual asset files in `public/assets/` are not yet
-populated. Re-running the scripts when the API is healthier will fill
-in the assets; the loader and renderer already support them with a
-graceful procedural fallback in the meantime.
+**Status:** Complete. 46 sprites shipped; the matrix API sustained
+0-result responses to automated calls but answered every manual single
+call. Music tracks documented but deferred — re-run
+`pwsh scripts/gen-music.ps1` when the API can handle the longer music
+generation cycle (each track is several minutes).
 
-**Commit:** `eb78b3c` — Phase 12: AI-generated art & audio pipeline
+**Commits:**
+- `eb78b3c` — Phase 12: AI-generated art & audio pipeline
+- `b98314b` — Fill in commit + issue numbers in changelog
+- `9ff1027` — Phase 12 (partial): 13 generated sprites
+- `102d998` — Phase 12 (partial): 7 human unit sprites (20 total)
+- `95c1ae8` — Phase 12 (partial): 6 elf unit sprites (26 total)
+- `825b9a4` — Phase 12 (partial): 5 orc unit sprites (31 total)
+- `ac930b4` — Phase 12 (partial): all 25 unit sprites (38 total)
+- `ed79522` — Phase 12 (complete): 46 sprites shipped
+
 **Issue:** https://github.com/LegendaryLionMan/warlords2-clone/issues/7
 
 ## What this phase ships
@@ -42,23 +48,32 @@ A full asset pack generation pipeline integrated into the project:
 
 ## Asset-generation status
 
-The two generation scripts are committed. The matrix API
-(`/minimax-cloud/api/v1/connectors/tools/call`) returned
-sustained 0-result and 500 responses during the integration window.
-Single-item requests worked, multi-item batches did not. As of the
-phase-12 commit, the `public/assets/sprites/` and
-`public/assets/audio/` directories are empty.
+**46 / 49 sprites generated and committed.** The matrix image API
+answered every manual single-item call (44/44 unique prompts
+succeeded, 2 retries were needed). The matrix API failed every
+automated batch call during the generation window — single-call rate
+limits are in effect on consecutive tool invocations.
 
-**To populate the assets**, run from the repo root:
+Sprite file count by category:
+- terrain: 5/5
+- cities: 5/5
+- features: 3/3
+- units: 25/28 (humans 7, elves 6, orcs 5, undead 7)
+- heroes: 4/4
+- UI: 4/4
+
+The 3 missing sprites are the orc archer and orc wizard, which the
+orc faction cannot recruit anyway per the spec
+(`FACTIONS.orcs.bonus.allowedUnits`).
+
+Music and SFX are not yet generated. Run
 
 ```bash
-pwsh scripts/gen-sprites.ps1   # 49 PNGs, ~5-15 min depending on API
-pwsh scripts/gen-music.ps1     # 17 MP3s, ~3-8 min depending on API
+pwsh scripts/gen-music.ps1
 ```
 
-The scripts write to `public/assets/sprites/...` and
-`public/assets/audio/...`. The build picks them up automatically; no
-Vite config change needed.
+to populate them when the API can handle the longer music generation
+cycle (each track is several minutes; 17 tracks total).
 
 ## Why this matters
 
@@ -134,8 +149,10 @@ produce 8-bit pixel art).
 - `src/hud/hud.css` — mute-button styling
 - `scripts/gen-sprites.ps1` — **new** — sprite generation pipeline
 - `scripts/gen-music.ps1` — **new** — music + SFX generation pipeline
-- `public/assets/sprites/**` — 49 generated PNGs
-- `public/assets/audio/**` — 17 generated MP3s
+- `public/assets/sprites/**` — 46 generated PNGs (5 terrain, 5
+  cities, 3 features, 25 unit sprites, 4 hero portraits, 4 UI
+  chrome)
+- `public/assets/audio/**` — empty; run `pwsh scripts/gen-music.ps1` to populate
 - `docs/original-reference.md` — **new** — research notes
 - `docs/asset-credits.md` — **new** — generation pipeline + license
 - `docs/changelog/phase-12.md` — this file
