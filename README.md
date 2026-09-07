@@ -3,8 +3,8 @@
 > A browser-based recreation of the 1993 SSI classic, rebuilt from the ground
 > up with **Phaser 3**, **TypeScript**, and **Vite**.
 
-[![Phase](https://img.shields.io/badge/phase-0%20%2F%2011-blueviolet)](#roadmap)
-[![Status](https://img.shields.io/badge/status-foundation-yellowgreen)](#roadmap)
+[![Phase](https://img.shields.io/badge/phase-12%20%2F%2012-brightgreen)](#roadmap)
+[![Status](https://img.shields.io/badge/status-complete-brightgreen)](#roadmap)
 [![License](https://img.shields.io/badge/license-ISC-blue)](#license)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178c6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5.4-646cff?logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -13,6 +13,8 @@
 ![Warlords II title screen](docs/screenshots/phase-0-menu.jpg)
 
 ![Faction select](docs/screenshots/phase-0-faction-select.jpg)
+
+![Game scene — full map with AI-generated art](docs/screenshots/phase-12-game.jpg)
 
 A turn-based strategy game with four factions, stack-based tactical combat,
 heroes with progression, city capture, and AI opponents — faithful to the
@@ -42,11 +44,12 @@ npm run e2e      # Playwright smoke (requires dev server)
 
 ## How to play
 
-> The game is a **Phase 0 foundation** build right now. You can navigate
-> the main menu and faction select; the actual gameplay arrives in Phase 1.
-> See [the roadmap](#roadmap) for what's coming.
+> The game is a **fully playable** Warlords II clone. All 12 phases
+> are complete: 4-faction map, stack-based combat, heroes, cities,
+> AI, save/load, AI-generated art + music + SFX, win conditions.
+> See [the roadmap](#roadmap) for what shipped.
 
-The eventual flow:
+The flow:
 
 1. Pick a faction (Humans, Elves, Orcs, or Undead).
 2. Explore the procedurally generated map.
@@ -127,8 +130,9 @@ src/
 | **9. Assets** | Procedural sprite pipeline (sprite-pipeline skill blocked: no image host). | ✅ Done |
 | **10. Polish** | Movement tween, tile flash, reduced-motion. | ✅ Done |
 | **11. Playtest + deploy** | Build verified, deploy documented. | ✅ Done |
+| **12. AI-generated art & audio** | 48 sprites, 7 music tracks, 10 SFX — faithful to the 1993 *Warlords II* style. | ✅ Done |
 
-MVP cutoff at end of Phase 7. Ship-quality cutoff at end of Phase 11.
+All phases complete. Final tally: 48/49 sprites (elf cavalry intentionally absent per faction roster), 7/7 music tracks, 10/10 SFX, 1.5 MB JS / 354 KB gzip, 82/82 tests pass.
 
 ## Scripts folder
 
