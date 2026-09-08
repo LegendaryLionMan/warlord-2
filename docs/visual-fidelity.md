@@ -1,10 +1,14 @@
 # Visual Fidelity — Warlords II (1993) vs. Clone
 
-**Phase 14 deliverable.** Records the reframed visual approach:
-instead of hand-coding pixel art to imitate the 1993 SVGA look, we
-extract the original assets directly from the game's 1993 floppy
-distribution and use them as in-game backdrops. The 16-color palette
-is read byte-exact from `STANDARD.PAL`, not approximated.
+**Phases 14 + 15 deliverable.** Records the reframed visual
+approach: instead of hand-coding pixel art to imitate the 1993
+SVGA look, we extract the original assets directly from the game's
+1993 floppy distribution and use them as in-game backdrops. The
+16-color palette is read byte-exact from `STANDARD.PAL`, not
+approximated. The full 1993 HUD chrome (top menu bar, right
+command panel, bottom action bar) and the four major dialogs
+(production, hero, quest, combat) all use the actual 1993
+artwork as backdrops.
 
 ## Why Phase 14
 
@@ -102,26 +106,34 @@ the original.
   screenshot or a Phase 13 hand-coded sprite (still 1993-faithful
   but not a 1:1 copy).
 
-## What Could Be Better (Phase 15+)
+## What Could Be Better (Phase 16+)
+
+**Phase 15 closed the HUD chrome gap** — the top bar, right command
+panel, and bottom action bar now use the actual 1993 chrome cropped
+from `world-map.png`, and the four major dialogs (production, hero,
+quest, combat) all render their 1993 backdrops. What's left:
 
 - **City fortresses are baked into the minimap** — we can see the
-  1993 cities but can't click them as separate entities. Phase 15
+  1993 cities but can't click them as separate entities. Phase 16
   should extract individual city sprites from `PICS/CITY*.PCK` and
   overlay them at their map positions.
-- **Tile terrain is just a 6×6 colored pip** — the player can't
-  read the terrain shape from the pip alone. Phase 15 should
+- **Tile terrain is still a 6×6 colored pip** — the player can't
+  read the terrain shape from the pip alone. Phase 16 should
   extract the individual 64×64 SVGA terrain tiles from
   `TERRAIN0/*.PCK` and overlay them at the procedural map's tile
   positions.
+- **Roads / coastline** — not yet rendered. Phase 16 should add
+  the 1993 road and coastline art between adjacent tiles.
 - **Unit sprites still use the Phase 13 hand-coded 16×24 art**.
   Phase 16 should replace them with crops from the original
   `PICS/UNITS.PCK`.
-- **HUD chrome is still the Phase 13 chiseled stone** — the
-  action bar with 8 unit slots + 4 production icons, the top menu
-  bar with SSG/Game/Order/Report/Hero/View/History/Turn, and the
-  right command panel all need a 1993-styled re-skin.
-- **Faction scene** still uses Cinzel text. The 1993 faction
+- **Hero portraits still use the Phase 13 hand-coded 32×32**.
+  Phase 16 should use real 1993 portraits from `DATA/*.DAT`.
+- **Faction scene cards** still use Cinzel text. The 1993 faction
   select uses bitmap pixel font with marble-and-gold frames.
+- **Settler unit** — not yet implemented.
+- **4 new factions** — not yet added (currently 4 of 8 1993
+  factions).
 
 ## Screenshot Index
 
@@ -130,6 +142,10 @@ the original.
 | `docs/screenshots/phase-14-menu.jpg` | MenuScene | 1993 title screen with marble background, gold logo, dragon ship |
 | `docs/screenshots/phase-14-faction.jpg` | FactionScene | 4 faction cards on the 1993 marble frame, gold-leaf banners |
 | `docs/screenshots/phase-14-game.jpg` | GameScene | World minimap tiling the 1024×1024 playfield; HUD chrome + procedural minimap on top |
+| `docs/screenshots/phase-15-game.jpg` | GameScene | Full 1993 HUD chrome: top menu bar, right SELECTION panel, 8-slot action bar, 1993 minimap |
+| `docs/screenshots/phase-15-production.jpg` | ProductionScene | 1993 Build Production dialog with the original 16-unit grid |
+| `docs/screenshots/phase-15-hero.jpg` | HeroScene | 1993 A Hero! dialog with painted Sir Marhaus portrait |
+| `docs/screenshots/phase-15-quest.jpg` | QuestScene | 1993 Quest scroll dialog |
 
 ## How to Verify Locally
 
