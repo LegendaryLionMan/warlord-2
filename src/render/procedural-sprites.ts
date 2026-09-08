@@ -27,6 +27,10 @@ const PHASER_FACTION_NUM: Record<OwnerId, number> = {
   elves: 0x2f8a4a,
   orcs: 0x9b2a2a,
   undead: 0x6b3a8a,
+  siroms: 0x6a5a4a,
+  darkelves: 0x4a2a6a,
+  fey: 0x3a7a5a,
+  syrnyn: 0x8a6420,
   neutral: 0x666666,
 };
 
@@ -35,6 +39,10 @@ const PHASER_FACTION_DARK: Record<OwnerId, number> = {
   elves: 0x14532d,
   orcs: 0x5a1414,
   undead: 0x3a1a5a,
+  siroms: 0x4a3a2a,
+  darkelves: 0x2a1a4a,
+  fey: 0x1a5a3a,
+  syrnyn: 0x5a4210,
   neutral: 0x333333,
 };
 
@@ -43,6 +51,10 @@ const PHASER_FACTION_LIGHT: Record<OwnerId, number> = {
   elves: 0x5cc480,
   orcs: 0xcc5050,
   undead: 0x9a6cc0,
+  siroms: 0x9a8a7a,
+  darkelves: 0x8a5aa0,
+  fey: 0x6acc8a,
+  syrnyn: 0xb89440,
   neutral: 0x999999,
 };
 

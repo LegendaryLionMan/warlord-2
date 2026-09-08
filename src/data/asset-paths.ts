@@ -50,10 +50,14 @@ export const SPRITE_PATHS: Record<string, string> = {
   [SPRITE_KEYS.uiAttackHighlight]:spritePath('ui/attack-highlight.png'),
 
   // Heroes
-  [SPRITE_KEYS.heroHumans]: spritePath('heroes/humans.png'),
-  [SPRITE_KEYS.heroElves]:  spritePath('heroes/elves.png'),
-  [SPRITE_KEYS.heroOrcs]:   spritePath('heroes/orcs.png'),
-  [SPRITE_KEYS.heroUndead]: spritePath('heroes/undead.png'),
+  [SPRITE_KEYS.heroHumans]:   spritePath('heroes/humans.png'),
+  [SPRITE_KEYS.heroElves]:    spritePath('heroes/elves.png'),
+  [SPRITE_KEYS.heroOrcs]:     spritePath('heroes/orcs.png'),
+  [SPRITE_KEYS.heroUndead]:   spritePath('heroes/undead.png'),
+  [SPRITE_KEYS.heroSiroms]:    spritePath('heroes/humans.png'),
+  [SPRITE_KEYS.heroDarkelves]: spritePath('heroes/humans.png'),
+  [SPRITE_KEYS.heroFey]:       spritePath('heroes/humans.png'),
+  [SPRITE_KEYS.heroSyrnyn]:    spritePath('heroes/humans.png'),
 
   // Original 1993 game backdrops (faithful reference)
   [SPRITE_KEYS.originalTitleScreen]:       spritePath('original/title-screen.jpg'),

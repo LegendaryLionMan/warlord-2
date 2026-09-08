@@ -16,17 +16,30 @@ export const MAP_WIDTH = 32;
 export const MAP_HEIGHT = 32;
 
 /** Factions. Mirrors data/factions.ts but is the canonical list. */
-export const FACTIONS: FactionId[] = ['humans', 'elves', 'orcs', 'undead'];
+export const FACTIONS: FactionId[] = [
+  'humans',
+  'elves',
+  'orcs',
+  'undead',
+  'siroms',
+  'darkelves',
+  'fey',
+  'syrnyn',
+];
 
 /** Default number of AI opponents. */
-export const DEFAULT_FACTION_COUNT = 4;
+export const DEFAULT_FACTION_COUNT = 8;
 
 /** Faction color palette — primary, secondary, accent (Phaser 24-bit color integers). */
 export const FACTION_COLORS: Record<FactionId, { primary: number; secondary: number; accent: number; text: string }> = {
-  humans: { primary: 0x3b6fb6, secondary: 0x1e3a8a, accent: 0x6aa3e8, text: '#e8efff' },
-  elves: { primary: 0x2f8a4a, secondary: 0x14532d, accent: 0x5cc480, text: '#e8f5ec' },
-  orcs: { primary: 0x9b2a2a, secondary: 0x5a1414, accent: 0xcc5050, text: '#f5e8e8' },
-  undead: { primary: 0x6b3a8a, secondary: 0x3a1a5a, accent: 0x9a6cc0, text: '#f0e8f5' },
+  humans:    { primary: 0x3b6fb6, secondary: 0x1e3a8a, accent: 0x6aa3e8, text: '#e8efff' },
+  elves:     { primary: 0x2f8a4a, secondary: 0x14532d, accent: 0x5cc480, text: '#e8f5ec' },
+  orcs:      { primary: 0x9b2a2a, secondary: 0x5a1414, accent: 0xcc5050, text: '#f5e8e8' },
+  undead:    { primary: 0x6b3a8a, secondary: 0x3a1a5a, accent: 0x9a6cc0, text: '#f0e8f5' },
+  siroms:    { primary: 0x6a5a4a, secondary: 0x4a3a2a, accent: 0x9a8a7a, text: '#f0e8e0' },
+  darkelves: { primary: 0x4a2a6a, secondary: 0x2a1a4a, accent: 0x8a5aa0, text: '#f0e0f5' },
+  fey:       { primary: 0x3a7a5a, secondary: 0x1a5a3a, accent: 0x6acc8a, text: '#e0f5e8' },
+  syrnyn:    { primary: 0x8a6420, secondary: 0x5a4210, accent: 0xb89440, text: '#f5f0e0' },
 };
 
 /** Terrain table — used by the renderer. The sim has its own per-terrain move/defense. */
@@ -87,4 +100,4 @@ export const VISION_RADIUS_HERO = 5;
 export const VISION_RADIUS_SCOUT = 7;
 
 /** Unit roster — referenced by data/units.ts. */
-export const UNIT_IDS: UnitId[] = ['militia', 'spearman', 'archer', 'knight', 'cavalry', 'wizard', 'giant'];
+export const UNIT_IDS: UnitId[] = ['militia', 'spearman', 'archer', 'knight', 'cavalry', 'wizard', 'giant', 'settler'];

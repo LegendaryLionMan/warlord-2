@@ -38,6 +38,15 @@ export class BootScene extends Phaser.Scene {
       this.scene.start('FactionScene');
       return;
     }
+    if (direct === 'OutcomeScene') {
+      // Seed the outcome payload so OutcomeScene can read it when
+      // launched from GameScene.create().
+      (window as unknown as { outcomePayload: { kind: 'won' | 'lost' } }).outcomePayload = {
+        kind: (params.get('kind') as 'won' | 'lost') ?? 'won',
+      };
+      this.scene.start('GameScene', { faction: params.get('faction') ?? 'humans' });
+      return;
+    }
     this.scene.start('MenuScene');
   }
 }

@@ -8,7 +8,7 @@ describe('createInitialState', () => {
     expect(s.gold).toBe(500);
     expect(s.mapWidth).toBe(32);
     expect(s.mapHeight).toBe(32);
-    expect(s.factionCount).toBe(4);
+    expect(s.factionCount).toBe(8);
     expect(s.playerFaction).toBe('humans');
     expect(s.fogOfWar).toBe(true);
     expect(s.phase).toBe('menu');

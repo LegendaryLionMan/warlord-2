@@ -138,6 +138,26 @@ export const UNITS: Record<UnitId, UnitTemplate> = {
     buildTime: 4,
     description: 'Siege-class unit. Highest HP and damage in the roster. Slow.',
   },
+  settler: {
+    // Phase 16 — the Settler unit. Cannot attack or defend. Walks onto
+    // an unowned tile and founds a new city for the player's faction.
+    // Modeled after the 1993 Warlords II Settler: 0 ATK, 0 DEF, low
+    // HP, but unique "build" ability.
+    id: 'settler',
+    name: 'Settler',
+    icon: '⌂',
+    cost: 200,
+    hp: 3,
+    attack: 0,
+    defense: 0,
+    moves: 2,
+    ranged: false,
+    range: 0,
+    vsCavalry: 0,
+    magic: 0,
+    buildTime: 2,
+    description: 'Founding colonist. Walks onto an empty tile to found a new city. Cannot fight.',
+  },
 };
 
 export const UNIT_LIST: UnitTemplate[] = Object.values(UNITS);

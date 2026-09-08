@@ -61,6 +61,14 @@ export const SPRITE_KEYS = {
   heroElves: 'hero.elves',
   heroOrcs: 'hero.orcs',
   heroUndead: 'hero.undead',
+  // Phase 16 — 4 new factions. We use the humans portrait as a
+  // placeholder for the new ones until real 1993 portraits are
+  // extracted; the factions are still selectable and get their own
+  // unit tints and bonuses.
+  heroSiroms: 'hero.siroms',
+  heroDarkelves: 'hero.darkelves',
+  heroFey: 'hero.fey',
+  heroSyrnyn: 'hero.syrnyn',
 
   // Map features
   featureMine: 'feature.mine',

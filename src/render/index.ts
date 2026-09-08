@@ -7,6 +7,7 @@ import { CombatScene } from './CombatScene';
 import { ProductionScene } from './ProductionScene';
 import { HeroScene } from './HeroScene';
 import { QuestScene } from './QuestScene';
+import { OutcomeScene } from './OutcomeScene';
 
 /**
  * Phaser game configuration. One source of truth for canvas size, scenes,
@@ -25,7 +26,7 @@ export const PHASER_CONFIG: Phaser.Types.Core.GameConfig = {
   pixelArt: true,
   antialias: false,
   roundPixels: true,
-  scene: [BootScene, MenuScene, FactionScene, GameScene, CombatScene, ProductionScene, HeroScene, QuestScene],
+  scene: [BootScene, MenuScene, FactionScene, GameScene, CombatScene, ProductionScene, HeroScene, QuestScene, OutcomeScene],
   fps: { target: 60, forceSetTimeOut: false },
   render: {
     pixelArt: true,

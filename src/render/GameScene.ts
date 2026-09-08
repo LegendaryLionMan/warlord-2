@@ -71,6 +71,11 @@ export class GameScene extends Phaser.Scene {
       this.time.delayedCall(800, () => this.scene.launch('HeroScene'));
     } else if (sceneParam === 'QuestScene') {
       this.time.delayedCall(800, () => this.scene.launch('QuestScene'));
+    } else if (sceneParam === 'OutcomeScene') {
+      (window as unknown as { outcomePayload: { kind: 'won' | 'lost' } }).outcomePayload ??= {
+        kind: (new URLSearchParams(window.location.search).get('kind') as 'won' | 'lost') ?? 'won',
+      };
+      this.time.delayedCall(1500, () => this.scene.launch('OutcomeScene'));
     }
 
     const loaded = (window as unknown as { loadedState?: GameState }).loadedState;
@@ -255,12 +260,19 @@ export class GameScene extends Phaser.Scene {
 
   private citySpriteKey(owner: FactionId | 'neutral'): string | null {
     switch (owner) {
-      case 'humans': return SPRITE_KEYS.cityHumans;
-      case 'elves':  return SPRITE_KEYS.cityElves;
-      case 'orcs':   return SPRITE_KEYS.cityOrcs;
-      case 'undead': return SPRITE_KEYS.cityUndead;
-      case 'neutral':return SPRITE_KEYS.cityNeutral;
-      default:       return null;
+      case 'humans':    return SPRITE_KEYS.cityHumans;
+      case 'elves':     return SPRITE_KEYS.cityElves;
+      case 'orcs':      return SPRITE_KEYS.cityOrcs;
+      case 'undead':    return SPRITE_KEYS.cityUndead;
+      // Phase 16 — 4 new factions fall back to the neutral fortress
+      // sprite until real 1993 city variants are extracted. The
+      // faction pip + procedural color still shows the owner.
+      case 'siroms':
+      case 'darkelves':
+      case 'fey':
+      case 'syrnyn':
+      case 'neutral':   return SPRITE_KEYS.cityNeutral;
+      default:          return null;
     }
   }
 
@@ -308,12 +320,17 @@ export class GameScene extends Phaser.Scene {
       audioManager.playMusic('music.victory', { loop: false, volume: 0.6 });
       audioManager.playSfx('sfx.victory-sting');
       updateHud({ message: '🏆 VICTORY! You hold 75% of the kingdom.' });
+      // Phase 16 — launch the OutcomeScene overlay (1993-styled).
+      (window as unknown as { outcomePayload: { kind: 'won' | 'lost' } }).outcomePayload = { kind: 'won' };
+      this.time.delayedCall(800, () => this.scene.launch('OutcomeScene'));
     } else if (outcome === 'lost') {
       this.state.phase = 'lost';
       audioManager.stopMusic(400);
       audioManager.playMusic('music.defeat', { loop: false, volume: 0.5 });
       audioManager.playSfx('sfx.defeat-sting');
       updateHud({ message: '💀 DEFEAT. Your faction is destroyed.' });
+      (window as unknown as { outcomePayload: { kind: 'won' | 'lost' } }).outcomePayload = { kind: 'lost' };
+      this.time.delayedCall(800, () => this.scene.launch('OutcomeScene'));
     }
   }
 
