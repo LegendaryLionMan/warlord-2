@@ -23,38 +23,74 @@ export class HeroScene extends Phaser.Scene {
     audioManager.playSfx('sfx.click');
     const { width, height } = this.scale;
     const pending = (window as unknown as { heroPayload?: { heroName: string } }).heroPayload;
-    // heroName is reserved for future use (e.g., a future animated
-    // portrait); the procedural backdrop is the visual focus for now.
-    void pending?.heroName;
+    const heroName = pending?.heroName ?? 'A Hero';
 
     // Procedural hero-dialog backdrop (parchment + gold frame).
     drawBackdrop(this, 'hero');
     this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.35);
 
-    // Hero name banner (centred above the OK button).
-    if (pending?.heroName) {
-      this.add
-        .text(width / 2, height / 2 - 30, pending.heroName, {
-          fontFamily: 'Press Start 2P, monospace',
-          fontSize: '18px',
-          color: UI_COLORS.gold,
-          fontStyle: 'bold',
-        })
-        .setOrigin(0.5);
-    }
+    // Central panel
+    const panelW = 560;
+    const panelH = 360;
+    const cx = width / 2;
+    const cy = height / 2;
+    const panel = this.add.rectangle(cx, cy, panelW, panelH, 0x1c1a18, 0.96);
+    panel.setStrokeStyle(3, 0xc89a3c);
 
-    // OK button
+    // Decorative gold scroll header
+    this.add.rectangle(cx, cy - panelH / 2 + 16, panelW - 20, 10, 0xc89a3c, 0.7);
+    this.add.circle(cx - panelW / 2 + 16, cy - panelH / 2 + 16, 5, 0xf4cf6a);
+    this.add.circle(cx + panelW / 2 - 16, cy - panelH / 2 + 16, 5, 0xf4cf6a);
+
+    // Title
+    this.add.text(cx, cy - panelH / 2 + 60, 'A HERO!', {
+      fontFamily: 'Cinzel, serif',
+      fontSize: '40px',
+      color: UI_COLORS.gold,
+      fontStyle: 'bold',
+      stroke: '#1c1a18',
+      strokeThickness: 3,
+    }).setOrigin(0.5);
+
+    // Hero name (large)
+    this.add.text(cx, cy - 30, heroName, {
+      fontFamily: 'Cinzel, serif',
+      fontSize: '32px',
+      color: '#e8d8a8',
+      fontStyle: 'italic',
+    }).setOrigin(0.5);
+
+    // Subtitle
+    this.add.text(cx, cy + 30, 'A wandering adventurer', {
+      fontFamily: 'Cinzel, serif',
+      fontSize: '16px',
+      color: '#a09080',
+      fontStyle: 'italic',
+    }).setOrigin(0.5);
+
+    // OK button (chiseled gold)
+    const okW = 140;
+    const okH = 44;
+    const okX = cx - okW / 2;
+    const okY = cy + panelH / 2 - okH - 16;
+    const okBg = this.add.graphics();
+    okBg.fillStyle(0xc89a3c, 1);
+    okBg.fillRect(okX, okY, okW, okH);
+    okBg.fillStyle(0xf4cf6a, 1);
+    okBg.fillRect(okX + 2, okY + 2, okW - 4, 10);
+    okBg.lineStyle(2, 0x1c1a18, 1);
+    okBg.strokeRect(okX, okY, okW, okH);
     const ok = this.add
-      .text(width - 130, height - 70, 'OK', {
-        fontFamily: 'Press Start 2P, monospace',
-        fontSize: '14px',
-        color: UI_COLORS.gold,
+      .text(cx, okY + okH / 2, 'OK', {
+        fontFamily: 'Cinzel, serif',
+        fontSize: '20px',
+        color: '#1c1a18',
         fontStyle: 'bold',
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
-    ok.on('pointerover', () => ok.setColor('#ffffff'));
-    ok.on('pointerout', () => ok.setColor(UI_COLORS.gold));
+    ok.on('pointerover', () => ok.setColor('#4a2a08'));
+    ok.on('pointerout', () => ok.setColor('#1c1a18'));
     ok.on('pointerdown', () => this.scene.stop());
   }
 }

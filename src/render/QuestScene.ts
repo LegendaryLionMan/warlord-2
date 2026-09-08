@@ -50,51 +50,73 @@ export class QuestScene extends Phaser.Scene {
 
     // Procedural quest-scroll backdrop (aged paper + gold frame).
     drawBackdrop(this, 'quest');
-    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.35);
 
-    // Quest title (above the scroll)
-    this.add
-      .text(width / 2, 60, quest.title, {
-        fontFamily: 'Press Start 2P, monospace',
-        fontSize: '16px',
-        color: UI_COLORS.gold,
-        fontStyle: 'bold',
-      })
-      .setOrigin(0.5);
+    // Central panel
+    const panelW = 640;
+    const panelH = 420;
+    const cx = width / 2;
+    const cy = height / 2;
+    const panel = this.add.rectangle(cx, cy, panelW, panelH, 0x1c1a18, 0.97);
+    panel.setStrokeStyle(3, 0xc89a3c);
 
-    // Quest body (multi-line)
-    this.add
-      .text(width / 2, height / 2 - 40, quest.body, {
-        fontFamily: 'Press Start 2P, monospace',
-        fontSize: '11px',
-        color: UI_COLORS.text,
-        align: 'center',
-        wordWrap: { width: 480 },
-      })
-      .setOrigin(0.5);
+    // Decorative gold scroll header
+    const header = this.add.rectangle(cx, cy - panelH / 2 + 18, panelW - 20, 10, 0xc89a3c, 0.7);
+    this.add.circle(cx - panelW / 2 + 16, cy - panelH / 2 + 18, 5, 0xf4cf6a);
+    this.add.circle(cx + panelW / 2 - 16, cy - panelH / 2 + 18, 5, 0xf4cf6a);
+
+    // Quest title
+    this.add.text(cx, cy - panelH / 2 + 60, quest.title, {
+      fontFamily: 'Cinzel, serif',
+      fontSize: '30px',
+      color: UI_COLORS.gold,
+      fontStyle: 'bold',
+      stroke: '#1c1a18',
+      strokeThickness: 2,
+      align: 'center',
+      wordWrap: { width: panelW - 80 },
+    }).setOrigin(0.5);
+
+    // Quest body
+    this.add.text(cx, cy - 20, quest.body, {
+      fontFamily: 'Cinzel, serif',
+      fontSize: '18px',
+      color: '#e8d8a8',
+      fontStyle: 'italic',
+      align: 'center',
+      wordWrap: { width: panelW - 80 },
+    }).setOrigin(0.5);
 
     // Reward
-    this.add
-      .text(width / 2, height / 2 + 80, `Reward: ${quest.reward}`, {
-        fontFamily: 'Press Start 2P, monospace',
-        fontSize: '12px',
-        color: '#c89a3c',
-        fontStyle: 'bold',
-      })
-      .setOrigin(0.5);
+    this.add.text(cx, cy + 60, `Reward: ${quest.reward}`, {
+      fontFamily: 'Cinzel, serif',
+      fontSize: '20px',
+      color: '#c89a3c',
+      fontStyle: 'bold',
+    }).setOrigin(0.5);
 
     // Done button
+    const doneW = 160;
+    const doneH = 44;
+    const doneX = cx - doneW / 2;
+    const doneY = cy + panelH / 2 - doneH - 16;
+    const doneBg = this.add.graphics();
+    doneBg.fillStyle(0xc89a3c, 1);
+    doneBg.fillRect(doneX, doneY, doneW, doneH);
+    doneBg.fillStyle(0xf4cf6a, 1);
+    doneBg.fillRect(doneX + 2, doneY + 2, doneW - 4, 10);
+    doneBg.lineStyle(2, 0x1c1a18, 1);
+    doneBg.strokeRect(doneX, doneY, doneW, doneH);
     const done = this.add
-      .text(width - 130, height - 80, 'Done', {
-        fontFamily: 'Press Start 2P, monospace',
-        fontSize: '14px',
-        color: UI_COLORS.gold,
+      .text(cx, doneY + doneH / 2, 'DONE', {
+        fontFamily: 'Cinzel, serif',
+        fontSize: '20px',
+        color: '#1c1a18',
         fontStyle: 'bold',
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
-    done.on('pointerover', () => done.setColor('#ffffff'));
-    done.on('pointerout', () => done.setColor(UI_COLORS.gold));
+    done.on('pointerover', () => done.setColor('#4a2a08'));
+    done.on('pointerout', () => done.setColor('#1c1a18'));
     done.on('pointerdown', () => this.scene.stop());
   }
 }

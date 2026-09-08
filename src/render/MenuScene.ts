@@ -27,13 +27,38 @@ export class MenuScene extends Phaser.Scene {
     // Procedural marble + gold menu backdrop. No image references.
     drawBackdrop(this, 'menu');
 
-    // Big "WARLORD 2" title.
+    // Decorative gold scroll banner under the title.
+    const banner = this.add.graphics();
+    banner.fillStyle(0xc89a3c, 0.85);
+    banner.fillRect(width / 2 - 320, height * 0.22 - 4, 640, 2);
+    banner.fillRect(width / 2 - 320, height * 0.34 - 4, 640, 2);
+    banner.fillStyle(0x6a4a18, 1);
+    banner.fillRect(width / 2 - 322, height * 0.22 - 2, 644, 1);
+    banner.fillRect(width / 2 - 322, height * 0.34 - 2, 644, 1);
+    // Gold corner studs
+    banner.fillStyle(0xf4cf6a, 1);
+    banner.fillCircle(width / 2 - 320, height * 0.22 - 3, 4);
+    banner.fillCircle(width / 2 + 320, height * 0.22 - 3, 4);
+    banner.fillCircle(width / 2 - 320, height * 0.34 - 3, 4);
+    banner.fillCircle(width / 2 + 320, height * 0.34 - 3, 4);
+
+    // Big "WARLORD 2" title with a darker drop-shadow for depth.
+    this.add
+      .text(width / 2 + 3, height * 0.28 + 3, 'WARLORD 2', {
+        fontFamily: 'Cinzel, serif',
+        fontSize: '84px',
+        color: '#1a0e08',
+        fontStyle: 'bold',
+      })
+      .setOrigin(0.5);
     this.add
       .text(width / 2, height * 0.28, 'WARLORD 2', {
         fontFamily: 'Cinzel, serif',
-        fontSize: '72px',
+        fontSize: '84px',
         color: UI_COLORS.gold,
         fontStyle: 'bold',
+        stroke: '#4a2a08',
+        strokeThickness: 2,
       })
       .setOrigin(0.5);
 
@@ -41,39 +66,58 @@ export class MenuScene extends Phaser.Scene {
     this.add
       .text(width / 2, height * 0.40, 'a turn-based strategy of eight kingdoms', {
         fontFamily: 'Cinzel, serif',
-        fontSize: '18px',
-        color: '#c8b890',
+        fontSize: '20px',
+        color: '#e8d8a8',
         fontStyle: 'italic',
       })
       .setOrigin(0.5);
 
-    // "Begin" button.
+    // "Begin" button - chiseled gold.
+    const beginBg = this.add.graphics();
+    const beginW = 220;
+    const beginH = 56;
+    const beginX = width / 2 - beginW / 2;
+    const beginY = height * 0.58;
+    beginBg.fillStyle(0xc89a3c, 1);
+    beginBg.fillRect(beginX, beginY, beginW, beginH);
+    beginBg.fillStyle(0xf4cf6a, 1);
+    beginBg.fillRect(beginX + 2, beginY + 2, beginW - 4, 12);
+    beginBg.fillStyle(0x6a4a18, 1);
+    beginBg.fillRect(beginX + 2, beginY + beginH - 6, beginW - 4, 4);
+    beginBg.lineStyle(2, 0x1c1a18, 1);
+    beginBg.strokeRect(beginX, beginY, beginW, beginH);
     const beginBtn = this.add
-      .text(width / 2, height * 0.62, 'BEGIN', {
-        fontFamily: 'Press Start 2P, monospace',
-        fontSize: '18px',
-        color: UI_COLORS.gold,
+      .text(width / 2, beginY + beginH / 2, 'BEGIN', {
+        fontFamily: 'Cinzel, serif',
+        fontSize: '28px',
+        color: '#1c1a18',
         fontStyle: 'bold',
-        backgroundColor: '#1c1a18',
-        padding: { left: 30, right: 30, top: 12, bottom: 12 },
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
-    beginBtn.on('pointerover', () => beginBtn.setColor('#ffffff'));
-    beginBtn.on('pointerout', () => beginBtn.setColor(UI_COLORS.gold));
+    beginBtn.on('pointerover', () => beginBtn.setColor('#4a2a08'));
+    beginBtn.on('pointerout', () => beginBtn.setColor('#1c1a18'));
     beginBtn.on('pointerdown', () => this.scene.start('FactionScene'));
 
     // "Continue" button if a save exists.
     const slots = listSlots();
     if (slots.length > 0) {
       const slotName = slots[0]!;
+      const contBg = this.add.graphics();
+      const contW = 260;
+      const contH = 36;
+      const contX = width / 2 - contW / 2;
+      const contY = height * 0.70;
+      contBg.fillStyle(0x2a1f18, 1);
+      contBg.fillRect(contX, contY, contW, contH);
+      contBg.lineStyle(2, 0x8a6420, 1);
+      contBg.strokeRect(contX, contY, contW, contH);
       const cont = this.add
-        .text(width / 2, height * 0.72, `[ CONTINUE — ${slotName} ]`, {
-          fontFamily: 'Press Start 2P, monospace',
-          fontSize: '13px',
+        .text(width / 2, contY + contH / 2, `Continue — ${slotName}`, {
+          fontFamily: 'Cinzel, serif',
+          fontSize: '16px',
           color: UI_COLORS.gold,
-          backgroundColor: '#1c1a18',
-          padding: { left: 20, right: 20, top: 8, bottom: 8 },
+          fontStyle: 'italic',
         })
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true });
@@ -88,12 +132,17 @@ export class MenuScene extends Phaser.Scene {
       });
     }
 
+    // Decorative gold corner pip above the footer.
+    const footerPip = this.add.graphics();
+    footerPip.fillStyle(0xc89a3c, 1);
+    footerPip.fillCircle(width / 2 - 4, height * 0.93, 3);
+
     // Footer credit (not affiliated with SSG / Ubisoft).
     this.add
       .text(width / 2, height * 0.95, 'Inspired by 1990s turn-based strategy.  Not affiliated with SSG or Ubisoft.', {
         fontFamily: 'Press Start 2P, monospace',
-        fontSize: '8px',
-        color: UI_COLORS.textDim,
+        fontSize: '10px',
+        color: '#a09080',
       })
       .setOrigin(0.5);
   }

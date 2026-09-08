@@ -346,28 +346,88 @@ export class GameScene extends Phaser.Scene {
   }
 
   private renderMap(): void {
-    // Phase 14 — the world-backdrop TileSprite is the playfield's
-    // visual layer. We no longer paint full opaque per-tile terrain
-    // sprites on top of it; instead each tile gets a tiny colored
-    // corner pip (8x8) hinting at terrain type, so the procedural
-    // terrain pattern stays the dominant visual.
+    // Paint a full per-tile terrain tile. Each tile is a 32x32
+    // rectangle in the terrain base colour with a 1px edge in the
+    // darker edge colour, plus 2-3 character dots/lines in lighter
+    // and darker shades so the tile reads as the terrain type
+    // (plains = grass tufts, forest = tree clusters, hills =
+    // contour lines, mountains = peaks, water = wave lines).
+    //
+    // The variation field (0..1) is used to seed deterministic
+    // positions for the character shapes so the same map always
+    // paints the same pattern.
+    const g = this.add.graphics();
+    g.setDepth(0);
     for (let y = 0; y < this.state.mapHeight; y++) {
       const row: Phaser.GameObjects.Rectangle[] = [];
       for (let x = 0; x < this.state.mapWidth; x++) {
         const tile = this.state.map[y]?.[x];
         if (!tile) continue;
         const colors = TERRAIN_NUM_COLORS[tile.terrain];
-        // Small 6x6 colored pip in the bottom-right corner of the tile.
-        const pip = this.add.rectangle(
-          x * TILE_SIZE + TILE_SIZE - 5,
-          y * TILE_SIZE + TILE_SIZE - 5,
-          6,
-          6,
+        const v = tile.variation;
+        // Base fill
+        g.fillStyle(colors.fill, 1);
+        g.fillRect(
+          x * TILE_SIZE,
+          y * TILE_SIZE,
+          TILE_SIZE,
+          TILE_SIZE,
+        );
+        // Character dots / lines per terrain.
+        const tileX = x * TILE_SIZE;
+        const tileY = y * TILE_SIZE;
+        if (tile.terrain === 'plains') {
+          g.fillStyle(0x9bce7a, 1);
+          g.fillRect(tileX + 6 + Math.floor(v * 8), tileY + 8, 2, 2);
+          g.fillRect(tileX + 18 + Math.floor(v * 6), tileY + 22, 2, 2);
+          g.fillStyle(0x4a6e3a, 1);
+          g.fillRect(tileX + 14, tileY + 12 + Math.floor(v * 6), 2, 2);
+        } else if (tile.terrain === 'forest') {
+          g.fillStyle(0x1a3a1a, 1);
+          g.fillRect(tileX + 6, tileY + 6, 4, 4);
+          g.fillRect(tileX + 18 + Math.floor(v * 6), tileY + 14, 5, 5);
+          g.fillRect(tileX + 8, tileY + 22, 3, 3);
+          g.fillStyle(0x4a7a4a, 1);
+          g.fillRect(tileX + 7, tileY + 7, 2, 2);
+        } else if (tile.terrain === 'hills') {
+          g.lineStyle(1, 0x6a4a2a, 0.7);
+          g.lineBetween(tileX + 2, tileY + 10, tileX + 30, tileY + 10);
+          g.lineBetween(tileX + 4, tileY + 20, tileX + 30, tileY + 20);
+          g.fillStyle(0x6b8e5a, 1);
+          g.fillRect(tileX + 6 + Math.floor(v * 4), tileY + 26, 2, 2);
+        } else if (tile.terrain === 'mountains') {
+          g.fillStyle(0x3a3a4a, 1);
+          g.fillRect(tileX + 4, tileY + 24, 24, 4);
+          g.fillStyle(0x7a7a8a, 1);
+          g.fillRect(tileX + 12, tileY + 8, 8, 4);
+          g.fillRect(tileX + 10, tileY + 12, 12, 4);
+          g.fillRect(tileX + 8, tileY + 16, 16, 8);
+          g.fillStyle(0xa0a0b0, 1);
+          g.fillRect(tileX + 13, tileY + 9, 3, 3);
+        } else if (tile.terrain === 'water') {
+          g.lineStyle(1, 0x5a8aca, 0.9);
+          g.lineBetween(tileX + 2, tileY + 8 + Math.floor(v * 2), tileX + 30, tileY + 8);
+          g.lineBetween(tileX + 2, tileY + 22, tileX + 30, tileY + 22 - Math.floor(v * 2));
+        }
+        // Edge (1px stroke so neighbouring tiles share a 2px grid)
+        g.lineStyle(1, colors.edge, 0.8);
+        g.strokeRect(
+          x * TILE_SIZE,
+          y * TILE_SIZE,
+          TILE_SIZE,
+          TILE_SIZE,
+        );
+        // Track for cleanup (invisible placeholder; the actual
+        // drawing is on the Graphics layer).
+        const ph = this.add.rectangle(
+          x * TILE_SIZE + TILE_SIZE / 2,
+          y * TILE_SIZE + TILE_SIZE / 2,
+          0,
+          0,
           colors.fill,
         );
-        pip.setStrokeStyle(1, colors.edge, 0.6);
-        pip.setDepth(1);
-        row.push(pip as unknown as Phaser.GameObjects.Rectangle);
+        ph.setVisible(false);
+        row.push(ph as unknown as Phaser.GameObjects.Rectangle);
       }
       this.tileSprites.push(row);
     }
