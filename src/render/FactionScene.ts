@@ -2,6 +2,7 @@ import Phaser from 'phaser';
 import { UI_COLORS, UI_COLORS_NUM, FACTION_COLORS } from '../config';
 import { FACTIONS } from '../data/factions';
 import { audioManager } from '../assets/audio-manager';
+import { hideHud, showHud } from '../hud/hud';
 import type { FactionId } from '../sim/state';
 
 /**
@@ -16,6 +17,9 @@ export class FactionScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Phase 14 — hide the HUD so the 1993 faction frame is unobscured.
+    hideHud();
+    this.events.once('shutdown', () => showHud());
     audioManager.playMusic('music.faction-select');
     this.events.once('shutdown', () => audioManager.stopMusic(400));
     const { width, height } = this.scale;

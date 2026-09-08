@@ -46,3 +46,16 @@ export function setEndTurnHandler(handler: () => void): void {
 export function updateHud(patch: Partial<HudSnapshot>): void {
   pushHudSnapshot(patch);
 }
+
+/** Hide the HUD entirely (used by MenuScene and FactionScene, where
+ *  the 1993 title / faction art is the dominant visual). */
+export function hideHud(): void {
+  const host = document.getElementById('hud');
+  if (host) host.style.display = 'none';
+}
+
+/** Show the HUD again. */
+export function showHud(): void {
+  const host = document.getElementById('hud');
+  if (host) host.style.display = '';
+}

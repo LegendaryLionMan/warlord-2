@@ -1,7 +1,8 @@
 import Phaser from 'phaser';
-import { UI_COLORS, UI_COLORS_NUM } from '../config';
+import { UI_COLORS } from '../config';
 import { listSlots, loadSlot } from '../save/storage';
 import { audioManager } from '../assets/audio-manager';
+import { hideHud, showHud } from '../hud/hud';
 
 /**
  * Main menu scene. Shows the title, a "New Game" button, and a
@@ -15,61 +16,47 @@ export class MenuScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Phase 14 — hide the HUD so the 1993 title screen is unobscured.
+    hideHud();
+    this.events.once('shutdown', () => showHud());
     audioManager.playMusic('music.menu');
     this.events.once('shutdown', () => audioManager.stopMusic(400));
     const { width, height } = this.scale;
 
-    this.add.rectangle(width / 2, height / 2, width, height, UI_COLORS_NUM.background);
+    // Phase 14 — render the original 1993 Warlords II title screen
+    // (screenshot_00.jpg from Internet Archive) as the menu backdrop.
+    // This is the actual 1993 SSG/Steve Fawkner title artwork.
+    const titleImg = this.add.image(width / 2, height / 2, 'original.title-screen');
+    titleImg.setDisplaySize(width, height);
+    titleImg.setDepth(-10);
 
-    this.add
-      .text(width / 2, height * 0.28, 'WARLORDS II', {
-        fontFamily: 'Cinzel, serif',
-        fontSize: '72px',
+    // "Begin" button — positioned over the original's "Begin" button
+    // (lower-left of the title screen, ~x=160, y=320 of 640x480).
+    const beginBtn = this.add
+      .text(width * 0.18, height * 0.69, 'BEGIN', {
+        fontFamily: 'Press Start 2P, monospace',
+        fontSize: '14px',
         color: UI_COLORS.gold,
         fontStyle: 'bold',
       })
       .setOrigin(0.5)
-      .setShadow(0, 4, '#5a4510', 0, true, true);
-
-    this.add
-      .text(width / 2, height * 0.42, 'Conquer the Kingdom of Illuria', {
-        fontFamily: 'Cinzel, serif',
-        fontSize: '18px',
-        color: UI_COLORS.textDim,
-      })
-      .setOrigin(0.5);
-
-    // "New Game" button
-    const newGameBtn = this.add
-      .text(width / 2, height * 0.56, '[ NEW GAME ]', {
-        fontFamily: 'Cinzel, serif',
-        fontSize: '28px',
-        color: UI_COLORS.text,
-        backgroundColor: '#2a2319',
-        padding: { left: 40, right: 40, top: 14, bottom: 14 },
-      })
-      .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
-
-    newGameBtn.on('pointerover', () => newGameBtn.setColor(UI_COLORS.gold));
-    newGameBtn.on('pointerout', () => newGameBtn.setColor(UI_COLORS.text));
-    newGameBtn.on('pointerdown', () => this.scene.start('FactionScene'));
+    beginBtn.on('pointerover', () => beginBtn.setColor('#ffffff'));
+    beginBtn.on('pointerout', () => beginBtn.setColor(UI_COLORS.gold));
+    beginBtn.on('pointerdown', () => this.scene.start('FactionScene'));
 
     // "Continue" button if a save exists
     const slots = listSlots();
     if (slots.length > 0) {
       const slotName = slots[0]!;
       const cont = this.add
-        .text(width / 2, height * 0.66, `[ CONTINUE — ${slotName} ]`, {
-          fontFamily: 'Cinzel, serif',
-          fontSize: '22px',
+        .text(width * 0.18, height * 0.78, `[ CONTINUE — ${slotName} ]`, {
+          fontFamily: 'Press Start 2P, monospace',
+          fontSize: '11px',
           color: UI_COLORS.gold,
-          backgroundColor: '#1a1a2a',
-          padding: { left: 30, right: 30, top: 10, bottom: 10 },
         })
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true });
-
       cont.on('pointerover', () => cont.setColor('#ffffff'));
       cont.on('pointerout', () => cont.setColor(UI_COLORS.gold));
       cont.on('pointerdown', () => {
@@ -81,10 +68,12 @@ export class MenuScene extends Phaser.Scene {
       });
     }
 
+    // Subtle credit at the bottom — the original was made by
+    // Strategic Studies Group (SSG), Steve Fawkner et al.
     this.add
-      .text(width / 2, height * 0.84, 'Phase 8 — Save/Load', {
-        fontFamily: 'monospace',
-        fontSize: '12px',
+      .text(width / 2, height * 0.96, 'Fan clone · Art © 1993 SSG/Steve Fawkner · Built 2026', {
+        fontFamily: 'Press Start 2P, monospace',
+        fontSize: '8px',
         color: UI_COLORS.textDim,
       })
       .setOrigin(0.5);

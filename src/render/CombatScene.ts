@@ -23,7 +23,14 @@ export class CombatScene extends Phaser.Scene {
     const { width, height } = this.scale;
     const pending = (window as unknown as { combatPayload?: { attacker: Army; result: CombatResult } }).combatPayload;
 
-    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.92);
+    // Phase 14 — render the original 1993 combat screen (the world
+    // map view + the "Fighting" help dialog from warlord2_006.png) as
+    // the combat backdrop, so the player sees the same chrome the
+    // 1993 game used to introduce a fight.
+    const combatBg = this.add.image(width / 2, height / 2, 'original.combat-screen');
+    combatBg.setDisplaySize(width, height);
+    combatBg.setDepth(-10);
+    this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.35);
 
     const panelW = 720;
     const panelH = 460;

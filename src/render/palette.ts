@@ -1,49 +1,60 @@
-// Phase 13 — 16-color Warlords II palette.
+// Phase 14 — Warlords II (1993) 16-color palette.
 //
-// Extracted by k-means on the CRPG Addict's screenshot of the 1993
-// original (warlord2_006.png, see scripts/extract-palette.mjs). The
-// 1993 base game is 16-color SVGA; the 1995 Deluxe bumped to 256.
-// We are cloning the 1993 look, so we ship exactly 16 colors plus
-// transparent.
+// Extracted from the original game's STANDARD.PAL file
+// (msdos_Warlords_II_1993/Warlrd2/STANDARD.PAL). 16 RGB triplets,
+// 160 bytes total = 16 × 3 × 1 plane. This is the exact palette the
+// 1993 floppy release shipped with.
 //
-// Slot assignments reflect the *Warlords II Deluxe* manual's "color
-// slot" table (see docs/original-reference.md): Color 0 is
-// transparent, Color 255 is always white, and the rest map to
-// named roles.
+// Slot assignments:
+//   0  black                  (outlines, transparent backdrop)
+//   1  light gray (73 73 73)  (marble texture, UI mid)
+//   2  mid gray (56 56 56)
+//   3  dark gray (44 44 44)
+//   4  darker gray (31 31 31) (UI shadow)
+//   5  teal (17 72 99)        (water deep)
+//   6  deep blue (00 36 81)   (water deep highlight)
+//   7  olive (99 92 13)       (gold, fire)
+//   8  orange (99 63 00)      (mountains, hills, oranges)
+//   9  dark red (77 11 00)    (fire, accent)
+//   10 dark green (31 67 11)  (forest, grass)
+//   11 green (00 55 00)
+//   12 deep green (00 34 00)  (forest deep)
+//   13 brown (64 33 00)
+//   14 dark brown (45 20 00)
+//   15 light gray (99 99 99)  (snow, white, mountain light)
+//
+// Note: 5 grays dominate the palette (0, 1, 2, 3, 4, 15). The original
+// was drawn in a high-contrast "stone" aesthetic — much more grey
+// than the k-means Phase 13 palette had.
 
 export interface PaletteEntry {
-  /** Palette index (0-15). */
   readonly slot: number;
-  /** Named role, e.g. 'plains', 'water-deep', 'ui-stone-mid'. */
   readonly name: string;
-  /** 24-bit RGB. */
   readonly r: number;
   readonly g: number;
   readonly b: number;
 }
 
-// 16 entries. Sorted roughly by luminance (darkest first) so the
-// "shade" mapping reads top-to-bottom from dark to bright.
 export const PALETTE: readonly PaletteEntry[] = [
-  { slot: 0, name: 'transparent',     r:   0, g:   0, b:   0 }, // Color 0, fully transparent
-  { slot: 1, name: 'forest-deep',     r:   0, g:  89, b:   0 }, // darkest green
-  { slot: 2, name: 'plains-shade',    r:   0, g: 142, b:   0 }, // medium green
-  { slot: 3, name: 'plains-light',    r:  81, g: 174, b:  28 }, // bright green
-  { slot: 4, name: 'hills-base',      r: 166, g:  85, b:   0 }, // orange-brown
-  { slot: 5, name: 'hills-shade',     r: 122, g:  50, b:   0 }, // dark brown
-  { slot: 6, name: 'water-deep',      r:   0, g:  93, b: 211 }, // deep blue
-  { slot: 7, name: 'water-light',     r:  44, g: 186, b: 255 }, // bright cyan
-  { slot: 8, name: 'mountain-base',   r:  81, g:  81, b:  81 }, // dark stone
-  { slot: 9, name: 'mountain-shade',  r: 113, g: 113, b: 113 }, // mid stone
-  { slot: 10, name: 'mountain-light', r: 146, g: 146, b: 146 }, // light stone
-  { slot: 11, name: 'snow',           r: 190, g: 190, b: 190 }, // near-white
-  { slot: 12, name: 'ui-stone-dark',  r:  51, g:  51, b:  51 }, // deep shadow
-  { slot: 13, name: 'ui-stone-mid',   r: 113, g: 113, b: 113 }, // mid stone
-  { slot: 14, name: 'ui-stone-light', r: 190, g: 190, b: 190 }, // highlight
-  { slot: 15, name: 'gold',           r: 255, g: 162, b:   0 }, // UI accent / quest text
+  { slot:  0, name: 'black',            r:   0, g:   0, b:   0 },
+  { slot:  1, name: 'gray-light',       r: 115, g: 115, b: 115 },
+  { slot:  2, name: 'gray-mid',         r:  86, g:  86, b:  86 },
+  { slot:  3, name: 'gray-dark',        r:  68, g:  68, b:  68 },
+  { slot:  4, name: 'gray-darker',      r:  49, g:  49, b:  49 },
+  { slot:  5, name: 'teal',             r:  23, g: 114, b: 153 },
+  { slot:  6, name: 'blue-deep',        r:   0, g:  54, b: 129 },
+  { slot:  7, name: 'olive',            r: 153, g: 146, b:  19 },
+  { slot:  8, name: 'orange',           r: 153, g:  99, b:   0 },
+  { slot:  9, name: 'red-dark',         r: 119, g:  17, b:   0 },
+  { slot: 10, name: 'green-dark',       r:  49, g: 103, b:  17 },
+  { slot: 11, name: 'green',            r:   0, g:  85, b:   0 },
+  { slot: 12, name: 'green-deep',       r:   0, g:  52, b:   0 },
+  { slot: 13, name: 'brown',            r: 100, g:  51, b:   0 },
+  { slot: 14, name: 'brown-dark',       r:  69, g:  32, b:   0 },
+  { slot: 15, name: 'gray-bright',      r: 153, g: 153, b: 153 },
 ] as const;
 
-/** Per-channel color lookup (256 entries of [r,g,b]). */
+/** Per-channel color lookup (16 entries of [r,g,b]). */
 const RGB: ReadonlyArray<readonly [number, number, number]> = PALETTE.map(
   (e) => [e.r, e.g, e.b] as const,
 );
@@ -53,10 +64,7 @@ export function rgbForIndex(slot: number): readonly [number, number, number] {
   return RGB[slot] ?? [0, 0, 0];
 }
 
-/**
- * Look up the named slot, e.g. `paletteIndex('plains-shade')`. Throws
- * if the name is unknown so the build fails fast on typo.
- */
+/** Look up the named slot. Throws if the name is unknown so the build fails fast. */
 export function paletteIndex(name: string): number {
   const entry = PALETTE.find((e) => e.name === name);
   if (!entry) {
@@ -65,12 +73,9 @@ export function paletteIndex(name: string): number {
   return entry.slot;
 }
 
-/**
- * Return the palette index whose RGB is nearest to the given color.
- * Used by the post-processing pipeline when quantizing AI output.
- */
+/** Nearest palette index for an arbitrary RGB color. */
 export function nearestColorIndex(r: number, g: number, b: number): number {
-  let best = 1; // skip transparent
+  let best = 1; // skip black
   let bestD = Infinity;
   for (let i = 1; i < PALETTE.length; i++) {
     const entry = PALETTE[i]!;
@@ -78,35 +83,28 @@ export function nearestColorIndex(r: number, g: number, b: number): number {
     const dg = entry.g - g;
     const db = entry.b - b;
     const d = dr * dr + dg * dg + db * db;
-    if (d < bestD) {
-      bestD = d;
-      best = i;
-    }
+    if (d < bestD) { bestD = d; best = i; }
   }
   return best;
 }
 
-// Convenience constants for sprite-defs authors — names by purpose
-// so the terrain/city/UI authors don't need to remember slot numbers.
-
+/** Convenience constants for sprite-defs authors. */
 export const C = {
-  // terrain
-  FOREST_DEEP:    paletteIndex('forest-deep'),
-  PLAINS_SHADE:   paletteIndex('plains-shade'),
-  PLAINS_LIGHT:   paletteIndex('plains-light'),
-  HILLS_BASE:     paletteIndex('hills-base'),
-  HILLS_SHADE:    paletteIndex('hills-shade'),
-  WATER_DEEP:     paletteIndex('water-deep'),
-  WATER_LIGHT:    paletteIndex('water-light'),
-  MOUNTAIN_BASE:  paletteIndex('mountain-base'),
-  MOUNTAIN_SHADE: paletteIndex('mountain-shade'),
-  MOUNTAIN_LIGHT: paletteIndex('mountain-light'),
-  SNOW:           paletteIndex('snow'),
-  // UI / chrome
-  UI_STONE_DARK:  paletteIndex('ui-stone-dark'),
-  UI_STONE_MID:   paletteIndex('ui-stone-mid'),
-  UI_STONE_LIGHT: paletteIndex('ui-stone-light'),
-  GOLD:           paletteIndex('gold'),
-  // sentinel
-  T:              0, // transparent
+  BLACK:        0,
+  GRAY_LIGHT:   paletteIndex('gray-light'),
+  GRAY_MID:     paletteIndex('gray-mid'),
+  GRAY_DARK:    paletteIndex('gray-dark'),
+  GRAY_DARKER:  paletteIndex('gray-darker'),
+  TEAL:         paletteIndex('teal'),
+  BLUE_DEEP:    paletteIndex('blue-deep'),
+  OLIVE:        paletteIndex('olive'),
+  ORANGE:       paletteIndex('orange'),
+  RED_DARK:     paletteIndex('red-dark'),
+  GREEN_DARK:   paletteIndex('green-dark'),
+  GREEN:        paletteIndex('green'),
+  GREEN_DEEP:   paletteIndex('green-deep'),
+  BROWN:        paletteIndex('brown'),
+  BROWN_DARK:   paletteIndex('brown-dark'),
+  GRAY_BRIGHT:  paletteIndex('gray-bright'),
+  T:            0, // transparent
 } as const;

@@ -83,6 +83,21 @@ export class GameScene extends Phaser.Scene {
       void playerArmy;
     }
 
+    // Phase 14 — render the original 1993 world map minimap as the
+    // playfield backdrop. The cropped minimap is 168x208 (a clean
+    // world overview showing the continent shape, faction borders,
+    // and city dots in the 1993 style). We use it as a TileSprite at
+    // its native size so the continent art tiles naturally across
+    // the 1024x1024 playfield without distortion, then dim it
+    // (alpha 0.55) so the procedural tile grid + cities + armies
+    // remain readable on top.
+    const playfieldW = this.state.mapWidth * TILE_SIZE;
+    const playfieldH = this.state.mapHeight * TILE_SIZE;
+    const worldMap = this.add.tileSprite(0, 0, playfieldW, playfieldH, 'original.world-backdrop');
+    worldMap.setOrigin(0, 0);
+    worldMap.setDepth(-100);
+    worldMap.setAlpha(0.55);
+
     this.cameras.main.setBackgroundColor(UI_COLORS_NUM.background);
     this.cameras.main.setBounds(0, 0, this.state.mapWidth * TILE_SIZE, this.state.mapHeight * TILE_SIZE);
 
@@ -270,39 +285,30 @@ export class GameScene extends Phaser.Scene {
   }
 
   private renderMap(): void {
+    // Phase 14 — the world-backdrop TileSprite is the playfield's
+    // visual layer. We no longer paint full opaque per-tile terrain
+    // sprites on top of it; instead each tile gets a tiny colored
+    // corner pip (8x8) hinting at terrain type, so the 1993
+    // minimap underneath stays the dominant visual.
     for (let y = 0; y < this.state.mapHeight; y++) {
       const row: Phaser.GameObjects.Rectangle[] = [];
       for (let x = 0; x < this.state.mapWidth; x++) {
         const tile = this.state.map[y]?.[x];
         if (!tile) continue;
-        const cx = x * TILE_SIZE + TILE_SIZE / 2;
-        const cy = y * TILE_SIZE + TILE_SIZE / 2;
         const colors = TERRAIN_NUM_COLORS[tile.terrain];
-        const spriteKey = this.terrainSpriteKey(tile.terrain);
-
-        if (spriteKey && hasSprite(this, spriteKey)) {
-          const img = this.add.image(cx, cy, spriteKey);
-          img.setDisplaySize(TILE_SIZE, TILE_SIZE);
-          img.setDepth(0);
-          row.push(img as unknown as Phaser.GameObjects.Rectangle);
-        } else {
-          const rect = this.add.rectangle(cx, cy, TILE_SIZE, TILE_SIZE, colors.fill);
-          rect.setStrokeStyle(1, colors.edge, 0.4);
-          row.push(rect);
-        }
+        // Small 6x6 colored pip in the bottom-right corner of the tile.
+        const pip = this.add.rectangle(
+          x * TILE_SIZE + TILE_SIZE - 5,
+          y * TILE_SIZE + TILE_SIZE - 5,
+          6,
+          6,
+          colors.fill,
+        );
+        pip.setStrokeStyle(1, colors.edge, 0.6);
+        pip.setDepth(1);
+        row.push(pip as unknown as Phaser.GameObjects.Rectangle);
       }
       this.tileSprites.push(row);
-    }
-  }
-
-  private terrainSpriteKey(terrain: 'plains' | 'forest' | 'hills' | 'mountains' | 'water'): string | null {
-    switch (terrain) {
-      case 'plains':    return SPRITE_KEYS.tilePlains;
-      case 'forest':    return SPRITE_KEYS.tileForest;
-      case 'hills':     return SPRITE_KEYS.tileHills;
-      case 'mountains': return SPRITE_KEYS.tileMountains;
-      case 'water':     return SPRITE_KEYS.tileWater;
-      default:          return null;
     }
   }
 

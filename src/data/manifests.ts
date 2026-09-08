@@ -72,6 +72,19 @@ export const SPRITE_KEYS = {
   uiSelection: 'ui.selection',
   uiMoveHighlight: 'ui.move-highlight',
   uiAttackHighlight: 'ui.attack-highlight',
+
+  // Original 1993 game backdrops (640x480 screenshots used as in-game scenes)
+  originalTitleScreen: 'original.title-screen',
+  // Full 640x480 UI screenshot of the game running — kept for reference.
+  originalWorldMap: 'original.world-map',
+  // Cropped minimap (168x208) — clean world overview, used as the in-game
+  // playfield backdrop. Shows the continent shape, faction borders, cities,
+  // and hero icon in the original 1993 style.
+  originalWorldBackdrop: 'original.world-backdrop',
+  originalCombatScreen: 'original.combat-screen',
+  originalHeroDialog: 'original.hero-dialog',
+  originalProductionScreen: 'original.production-screen',
+  originalMapOverview: 'original.map-overview',
 } as const;
 
 export type SpriteKey = (typeof SPRITE_KEYS)[keyof typeof SPRITE_KEYS];
