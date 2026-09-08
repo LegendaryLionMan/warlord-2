@@ -23,7 +23,14 @@ export class BootScene extends Phaser.Scene {
     // Dev shortcut: ?scene=GameScene skips the menu for screenshot/QA use.
     const params = new URLSearchParams(window.location.search);
     const direct = params.get('scene');
-    if (direct === 'GameScene') {
+    if (
+      direct === 'GameScene' ||
+      direct === 'ProductionScene' ||
+      direct === 'HeroScene' ||
+      direct === 'QuestScene'
+    ) {
+      // All four flow through GameScene; the dialog ones self-launch
+      // in GameScene.create() based on the same URL param.
       this.scene.start('GameScene', { faction: params.get('faction') ?? 'humans' });
       return;
     }

@@ -6,6 +6,7 @@
 import { pushHudSnapshot, type HudSnapshot } from './store';
 import { mountTopBar } from './panels/top-bar';
 import { mountSidePanel } from './panels/side-panel';
+import { mountActionBar } from './panels/action-bar';
 import { mountMessageBox } from './panels/message-box';
 
 let mounted = false;
@@ -25,6 +26,7 @@ export function initHud(): void {
   mountMessageBox(host);
   mountSidePanel(host);
   mountTopBar(host, onEndTurn);
+  mountActionBar(host);
   mounted = true;
 }
 

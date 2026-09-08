@@ -34,6 +34,7 @@ export class GameScene extends Phaser.Scene {
   private selectionRect: Phaser.GameObjects.Rectangle | null = null;
   private rangeOverlays: Phaser.GameObjects.Rectangle[] = [];
   private minimap!: Phaser.GameObjects.Graphics;
+  private minimapBg!: Phaser.GameObjects.Image;
   private armySprite: Phaser.GameObjects.Rectangle | null = null;
   private citySprites: Phaser.GameObjects.Rectangle[] = [];
   private featureSprites: Phaser.GameObjects.Rectangle[] = [];
@@ -53,6 +54,25 @@ export class GameScene extends Phaser.Scene {
   }
 
   create(): void {
+    // Phase 15 — direct-launch dialog scenes for screenshot/QA use.
+    // The BootScene sets window.{production,hero,quest}Payload before
+    // starting GameScene, and we read the URL param here to launch
+    // the corresponding dialog after the game scene is fully up.
+    const sceneParam = new URLSearchParams(window.location.search).get('scene');
+    if (sceneParam === 'ProductionScene') {
+      (window as unknown as { productionPayload: { city: { name: string } } }).productionPayload ??= {
+        city: { name: 'The Silver City of Wintergreen' },
+      };
+      this.time.delayedCall(800, () => this.scene.launch('ProductionScene'));
+    } else if (sceneParam === 'HeroScene') {
+      (window as unknown as { heroPayload: { heroName: string } }).heroPayload ??= {
+        heroName: 'Sir Marhaus',
+      };
+      this.time.delayedCall(800, () => this.scene.launch('HeroScene'));
+    } else if (sceneParam === 'QuestScene') {
+      this.time.delayedCall(800, () => this.scene.launch('QuestScene'));
+    }
+
     const loaded = (window as unknown as { loadedState?: GameState }).loadedState;
     if (loaded) {
       this.state = loaded;
@@ -122,9 +142,33 @@ export class GameScene extends Phaser.Scene {
     this.selectionRect.setVisible(false);
     this.selectionRect.setDepth(100);
 
+    // Phase 15 — use the cropped 1993 minimap (the 168x208 region of
+    // world-map.png) as the in-game minimap backdrop, with the
+    // procedural army + city dot overlay drawn on top. We mount the
+    // background image in the bottom-right corner, sized to roughly
+    // match the 1993 layout (~170x130).
+    const minimapW = 170;
+    const minimapH = 130;
+    const minimapX = this.scale.width - minimapW - 16;
+    const minimapY = this.scale.height - minimapH - 16;
+    this.minimapBg = this.add.image(minimapX, minimapY, 'original.world-backdrop');
+    this.minimapBg.setOrigin(0, 0);
+    this.minimapBg.setDisplaySize(minimapW, minimapH);
+    this.minimapBg.setScrollFactor(0);
+    this.minimapBg.setDepth(49);
+
+    // Frame border around the minimap (chiseled stone)
+    const minimapFrame = this.add.graphics();
+    minimapFrame.setScrollFactor(0);
+    minimapFrame.setDepth(50);
+    minimapFrame.lineStyle(2, 0x1c1a18, 1);
+    minimapFrame.strokeRect(minimapX - 2, minimapY - 2, minimapW + 4, minimapH + 4);
+    minimapFrame.lineStyle(1, 0xc89a3c, 0.7);
+    minimapFrame.strokeRect(minimapX - 4, minimapY - 4, minimapW + 8, minimapH + 8);
+
     this.minimap = this.add.graphics();
     this.minimap.setScrollFactor(0);
-    this.minimap.setDepth(50);
+    this.minimap.setDepth(51);
     this.minimap.setPosition(0, 0);
     this.drawMinimap();
 
@@ -247,6 +291,12 @@ export class GameScene extends Phaser.Scene {
     }
     this.drawMinimap();
     this.checkOutcome();
+    // Phase 15 — occasional random quest (15% chance per turn). The
+    // 1993 game fired a quest whenever the player ended a turn, with
+    // specific triggers; we approximate with a probabilistic pop.
+    if (Math.random() < 0.15 && this.state.phase === 'playing') {
+      this.scene.launch('QuestScene');
+    }
   }
 
   private checkOutcome(): void {
@@ -349,42 +399,41 @@ export class GameScene extends Phaser.Scene {
   }
 
   private drawMinimap(): void {
-    const W = 160;
-    const H = 120;
+    const W = 170;
+    const H = 130;
+    const baseX = this.scale.width - W - 16;
+    const baseY = this.scale.height - H - 16;
     const cellW = W / this.state.mapWidth;
     const cellH = H / this.state.mapHeight;
 
     this.minimap.clear();
-    this.minimap.fillStyle(0x000000, 0.6);
-    this.minimap.fillRect(this.scale.width - W - 12, this.scale.height - H - 12, W, H);
 
-    for (let y = 0; y < this.state.mapHeight; y++) {
-      for (let x = 0; x < this.state.mapWidth; x++) {
-        const tile = this.state.map[y]?.[x];
-        if (!tile) continue;
-        const colors = TERRAIN_NUM_COLORS[tile.terrain];
-        this.minimap.fillStyle(colors.fill, 0.8);
-        this.minimap.fillRect(
-          this.scale.width - W - 12 + x * cellW,
-          this.scale.height - H - 12 + y * cellH,
-          cellW,
-          cellH,
-        );
-      }
-    }
-    // Army dot on minimap
+    // Overlay army dot on top of the 1993 minimap backdrop.
     const army = this.state.armies[0];
     if (army) {
+      // Soft yellow halo
+      this.minimap.fillStyle(0xfff080, 0.7);
+      this.minimap.fillCircle(
+        baseX + army.x * cellW + cellW / 2,
+        baseY + army.y * cellH + cellH / 2,
+        Math.max(4, cellW * 1.5),
+      );
+      // Solid yellow dot
       this.minimap.fillStyle(0xffd700, 1);
-      this.minimap.fillRect(
-        this.scale.width - W - 12 + army.x * cellW,
-        this.scale.height - H - 12 + army.y * cellH,
-        Math.max(2, cellW * 1.5),
-        Math.max(2, cellH * 1.5),
+      this.minimap.fillCircle(
+        baseX + army.x * cellW + cellW / 2,
+        baseY + army.y * cellH + cellH / 2,
+        Math.max(2, cellW * 1.0),
       );
     }
-    this.minimap.lineStyle(2, 0xffd700, 1);
-    this.minimap.strokeRect(this.scale.width - W - 12, this.scale.height - H - 12, W, H);
+    // Viewport rectangle (the camera view of the playfield)
+    const cam = this.cameras.main;
+    const viewX = (cam.scrollX / (this.state.mapWidth * TILE_SIZE)) * W;
+    const viewY = (cam.scrollY / (this.state.mapHeight * TILE_SIZE)) * H;
+    const viewW = (cam.width / (this.state.mapWidth * TILE_SIZE)) * W;
+    const viewH = (cam.height / (this.state.mapHeight * TILE_SIZE)) * H;
+    this.minimap.lineStyle(1, 0xffd700, 0.9);
+    this.minimap.strokeRect(baseX + viewX, baseY + viewY, viewW, viewH);
   }
 
   private setupInput(): void {

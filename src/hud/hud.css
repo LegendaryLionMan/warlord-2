@@ -54,24 +54,28 @@
 }
 
 /* ---------- Top bar (turn / gold / end-turn) ---------- */
+/* Phase 15 — the top bar uses the actual 1993 Warlords II menu bar
+   (cropped from the world-map.png) as its backdrop, scaled to
+   viewport width. The original 640x18 image is stretched to fill
+   the bar. Stats (TURN, gold, etc.) are overlaid in the empty
+   center area; the End Turn button moves to a 1993-styled large
+   button on the right (matching the 1993 end-turn dialog). */
 .top-bar {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 40px;
+  height: 36px;
   display: flex;
   align-items: center;
-  gap: 18px;
-  padding: 0 16px;
-  /* Chiseled stone: dark base + 1px hard gold highlight + 1px dark
-     shadow ridge. No smooth gradient. */
-  background: var(--c-stone-dark);
-  border-bottom: 3px solid var(--c-gold-dark);
+  gap: 14px;
+  padding: 0 12px;
+  background: #6a635b url('/assets/sprites/original/hud-top-bar.png') repeat-x;
+  background-size: auto 100%;
+  border-bottom: 2px solid #2a2620;
   box-shadow:
-    inset 0 2px 0 0 var(--c-stone-light),
-    inset 0 -1px 0 0 #000,
-    0 4px 0 0 #000;
+    inset 0 -1px 0 0 rgba(0,0,0,0.6),
+    0 2px 0 0 #000;
 }
 
 .top-bar::after {
@@ -92,17 +96,17 @@
 
 .top-stat {
   position: relative;
-  font-size: 10px;
-  color: var(--c-text);
+  font-size: 9px;
+  color: #1c1a18;
   letter-spacing: 1px;
   text-transform: uppercase;
-  padding: 4px 10px;
-  /* Sunken stone inset for each stat */
-  background: var(--c-stone-mid);
-  border: 1px solid var(--c-stone-dark);
+  padding: 3px 8px;
+  /* 1993-styled stat: cream-on-stone, hard 1px border, no gradient */
+  background: #d8c8a0;
+  border: 1px solid #1c1a18;
   box-shadow:
-    inset 0 1px 0 0 #000,
-    inset 0 -1px 0 0 var(--c-stone-light);
+    inset 0 1px 0 0 #f0e0b8,
+    inset 0 -1px 0 0 #8a7a5a;
 }
 
 .top-stat .label {
@@ -111,106 +115,122 @@
 }
 
 .top-stat.turn {
-  font-size: 12px;
-  color: var(--c-gold-bright);
+  font-size: 11px;
+  color: #1c1a18;
   font-weight: bold;
-  text-shadow: 1px 1px 0 #000;
-  border-color: var(--c-gold-dark);
+  text-shadow: none;
+  background: #c89a3c;
+  border-color: #6a4a18;
   box-shadow:
-    inset 0 1px 0 0 #000,
-    inset 0 -1px 0 0 var(--c-gold),
-    0 0 6px rgba(244, 207, 106, 0.35);
+    inset 0 1px 0 0 #f4cf6a,
+    inset 0 -1px 0 0 #8a6420;
 }
 
 .top-stat .value {
-  color: var(--c-gold-bright);
+  color: #6a4a18;
 }
 
-/* ---------- Chiseled buttons (end-turn + actions) ---------- */
-.end-turn-btn,
+/* ---------- End Turn button (1993-styled: large gold-on-stone) ---------- */
+.end-turn-btn {
+  position: relative;
+  margin-left: auto;
+  font-family: var(--font-bitmap);
+  font-size: 12px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  padding: 6px 18px;
+  cursor: pointer;
+  color: #1c1a18;
+  background: linear-gradient(180deg, #f4cf6a 0%, #c89a3c 50%, #8a6420 100%);
+  border: 2px solid #1c1a18;
+  box-shadow:
+    inset  1px  1px 0 0 #fff4c8,
+    inset -1px -1px 0 0 #4a2a08,
+    2px 2px 0 0 #000;
+  transition: transform 60ms, box-shadow 60ms;
+  user-select: none;
+}
+.end-turn-btn:hover { background: linear-gradient(180deg, #f4d878 0%, #d4a648 50%, #9a7030 100%); }
+.end-turn-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow: inset 1px 1px 0 0 #fff4c8, inset -1px -1px 0 0 #4a2a08;
+}
+
 .hud-action-btn {
   position: relative;
   font-family: var(--font-bitmap);
-  font-size: 10px;
+  font-size: 9px;
   letter-spacing: 1px;
   text-transform: uppercase;
-  padding: 8px 16px;
+  padding: 4px 10px;
   cursor: pointer;
-  color: var(--c-gold-bright);
-  background: var(--c-leather);
-  /* Hard 3D bevel: dark outer border, gold inner highlight, dark
-     shadow ridge underneath. NO rounded corners — every corner is a
-     chiseled 90° angle. */
-  border-top:    2px solid var(--c-gold);
-  border-left:   2px solid var(--c-gold);
-  border-right:  2px solid var(--c-gold-dark);
-  border-bottom: 2px solid var(--c-gold-dark);
+  color: #1c1a18;
+  background: #d8c8a0;
+  border: 1px solid #1c1a18;
   box-shadow:
-    inset  2px  2px 0 0 var(--c-leather-lt),
-    inset -2px -2px 0 0 #000,
-    3px 3px 0 0 #000;
+    inset  1px  1px 0 0 #f0e0b8,
+    inset -1px -1px 0 0 #8a7a5a,
+    1px 1px 0 0 #000;
   transition: transform 60ms, box-shadow 60ms;
   user-select: none;
 }
 
-.end-turn-btn:hover,
-.hud-action-btn:hover {
-  background: var(--c-leather-lt);
-  color: #fff;
-}
-
-.end-turn-btn:active,
-.hud-action-btn:active {
+.end-turn-btn:hover { background: linear-gradient(180deg, #f4d878 0%, #d4a648 50%, #9a7030 100%); }
+.end-turn-btn:active {
   transform: translate(2px, 2px);
-  box-shadow:
-    inset  2px  2px 0 0 #000,
-    inset -2px -2px 0 0 var(--c-leather-lt),
-    1px 1px 0 0 #000;
+  box-shadow: inset 1px 1px 0 0 #fff4c8, inset -1px -1px 0 0 #4a2a08;
 }
 
-.end-turn-btn {
-  margin-left: auto;
-  /* Slightly bigger than the secondary action buttons */
-  font-size: 12px;
-  padding: 10px 22px;
+.hud-action-btn:hover { background: #f0e0b8; }
+.hud-action-btn:active {
+  transform: translate(1px, 1px);
+  box-shadow: inset 1px 1px 0 0 #f0e0b8, inset -1px -1px 0 0 #8a7a5a;
 }
 
 .hud-action-btn.mute-btn {
-  min-width: 38px;
-  font-size: 12px;
-  padding: 8px 10px;
+  min-width: 32px;
+  font-size: 11px;
+  padding: 4px 8px;
 }
 
 /* ---------- Side panel (right-side: tile/army info) ---------- */
+/* Phase 15 — restyled to match the 1993 marble-textured right
+   command panel. Backdrop is the 1993 right-panel crop (the area
+   below the minimap in the world-map.png) at ~50% opacity so the
+   selection text remains readable on top. */
 .side-panel {
   position: absolute;
-  top: 56px;
+  top: 48px;
   right: 12px;
-  width: 260px;
-  background: var(--c-stone-dark);
+  width: 220px;
+  background:
+    linear-gradient(180deg,
+      rgba(106, 99, 91, 0.92) 0%,
+      rgba(74, 69, 64, 0.95) 100%),
+    url('/assets/sprites/original/hud-right-panel.png') no-repeat top right;
+  background-size: auto 100px, 100% auto;
   border-top:    2px solid var(--c-stone-light);
   border-left:   2px solid var(--c-stone-light);
   border-right:  2px solid #000;
   border-bottom: 2px solid #000;
-  box-shadow: 4px 4px 0 0 #000;
+  box-shadow: 3px 3px 0 0 #000;
   padding: 10px 12px;
-  /* Decorative gold scroll header */
 }
 
 .side-panel::before {
   content: '';
   display: block;
-  height: 8px;
+  height: 6px;
   margin: -10px -12px 8px -12px;
   background:
     repeating-linear-gradient(90deg,
-      var(--c-gold-dark) 0 4px,
-      var(--c-gold) 4px 8px);
+      var(--c-gold-dark) 0 3px,
+      var(--c-gold) 3px 6px);
   border-bottom: 1px solid #000;
 }
 
 .side-panel .panel-title {
-  font-size: 10px;
+  font-size: 9px;
   color: var(--c-gold-bright);
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -223,10 +243,11 @@
 .side-panel .panel-body p {
   margin: 4px 0;
   line-height: 1.4;
+  color: #e8d8a8;
 }
 
 .side-panel .panel-body p.empty {
-  color: var(--c-text-dim);
+  color: #8a7a5a;
   font-style: italic;
   font-size: 9px;
   text-align: center;
@@ -234,7 +255,7 @@
 }
 
 .side-panel .panel-body p.selected {
-  color: var(--c-gold-bright);
+  color: #f4cf6a;
   font-size: 11px;
   text-shadow: 1px 1px 0 #000;
 }
@@ -264,6 +285,83 @@
 .faction-badge.elves  { background: var(--c-emerald); }
 .faction-badge.orcs   { background: var(--c-leather-lt); }
 .faction-badge.undead { background: var(--c-magic); }
+
+/* ---------- Bottom action bar (1993 layout: 8 unit slots + 4 production icons) ---------- */
+.action-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: #6a635b url('/assets/sprites/original/hud-action-bar.png') repeat-x;
+  background-size: auto 100%;
+  border-top: 2px solid #2a2620;
+  box-shadow: inset 0 1px 0 0 rgba(0,0,0,0.5), 0 -2px 0 0 #000;
+}
+
+.action-slot {
+  width: 48px;
+  height: 48px;
+  background: #2a2620;
+  border: 2px solid #1c1a18;
+  box-shadow:
+    inset 0 0 0 2px #c89a3c,
+    inset 2px 2px 0 0 rgba(255,255,255,0.15),
+    inset -2px -2px 0 0 rgba(0,0,0,0.4);
+  color: #c89a3c;
+  font-family: var(--font-bitmap);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 1px 1px 0 #000;
+}
+.action-slot.filled {
+  background: #4a4540;
+  color: #f4cf6a;
+}
+
+.action-prod {
+  width: 38px;
+  height: 38px;
+  background: #2a2620;
+  border: 2px solid #c89a3c;
+  color: #c89a3c;
+  font-family: var(--font-bitmap);
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 1px 1px 0 #000;
+  cursor: pointer;
+  margin-left: 4px;
+}
+.action-prod:hover { background: #4a4540; color: #f4cf6a; }
+
+.action-end {
+  margin-left: auto;
+  width: 44px;
+  height: 44px;
+  background: linear-gradient(180deg, #c89a3c 0%, #8a6420 100%);
+  border: 2px solid #1c1a18;
+  color: #1c1a18;
+  font-family: var(--font-bitmap);
+  font-size: 22px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow:
+    inset 1px 1px 0 0 #f4cf6a,
+    inset -1px -1px 0 0 #4a2a08,
+    2px 2px 0 0 #000;
+  cursor: pointer;
+}
+.action-end:hover { background: linear-gradient(180deg, #d4a648 0%, #9a7030 100%); }
 
 /* ---------- Message box (centered, fades in/out) ---------- */
 .message-box {
