@@ -2,7 +2,7 @@
  * Procedural map generation.
  *
  * Generates a 32x32 (or whatever the state's dimensions are) terrain map
- * with the rough proportions of the 1993 Warlords II. The algorithm is
+ * with the rough proportions of the the 1990s 4X wargame tradition. The algorithm is
  * deliberately simple — distance-from-center for water on the map edges,
  * uniform random for everything else, then a few "lakes" cleared to break
  * up impassable clusters. Phase 9's asset pass replaces the procedural

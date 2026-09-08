@@ -55,18 +55,9 @@ export const SPRITE_PATHS: Record<string, string> = {
   [SPRITE_KEYS.heroOrcs]:     spritePath('heroes/orcs.png'),
   [SPRITE_KEYS.heroUndead]:   spritePath('heroes/undead.png'),
   [SPRITE_KEYS.heroSiroms]:    spritePath('heroes/humans.png'),
-  [SPRITE_KEYS.heroDarkelves]: spritePath('heroes/humans.png'),
+  [SPRITE_KEYS.heroNightelves]: spritePath('heroes/humans.png'),
   [SPRITE_KEYS.heroFey]:       spritePath('heroes/humans.png'),
   [SPRITE_KEYS.heroSyrnyn]:    spritePath('heroes/humans.png'),
-
-  // Original 1993 game backdrops (faithful reference)
-  [SPRITE_KEYS.originalTitleScreen]:       spritePath('original/title-screen.jpg'),
-  [SPRITE_KEYS.originalWorldMap]:          spritePath('original/world-map.png'),
-  [SPRITE_KEYS.originalWorldBackdrop]:     spritePath('original/world-backdrop.png'),
-  [SPRITE_KEYS.originalCombatScreen]:      spritePath('original/combat-screen.png'),
-  [SPRITE_KEYS.originalHeroDialog]:        spritePath('original/hero-dialog.png'),
-  [SPRITE_KEYS.originalProductionScreen]:  spritePath('original/production-screen.png'),
-  [SPRITE_KEYS.originalMapOverview]:       spritePath('original/map-overview.png'),
 };
 
 /** Build the dynamic unit-sprite path from kind and faction. */
@@ -77,12 +68,6 @@ export function unitSpritePath(unit: string, faction: string): string {
 /** Build the hero portrait path from faction. */
 export function heroSpritePath(faction: string): string {
   return spritePath(`heroes/${faction}.png`);
-}
-
-/** Path to a "original" backdrop (the 1993 game screenshot used as a
- *  faithful reference for the corresponding scene). */
-export function originalPath(name: string): string {
-  return spritePath(`original/${name}`);
 }
 
 /** Audio asset paths. */

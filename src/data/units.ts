@@ -141,7 +141,7 @@ export const UNITS: Record<UnitId, UnitTemplate> = {
   settler: {
     // Phase 16 — the Settler unit. Cannot attack or defend. Walks onto
     // an unowned tile and founds a new city for the player's faction.
-    // Modeled after the 1993 Warlords II Settler: 0 ATK, 0 DEF, low
+    // Modeled after the Settler archetype: 0 ATK, 0 DEF, low
     // HP, but unique "build" ability.
     id: 'settler',
     name: 'Settler',

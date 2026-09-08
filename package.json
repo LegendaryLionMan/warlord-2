@@ -1,8 +1,8 @@
 {
-  "name": "warlords2-clone",
+  "name": "warlord-2",
   "version": "1.0.0",
   "private": true,
-  "description": "Warlords II clone - turn-based strategy with eight factions, stack-based combat, heroes, and AI opponents. Faithful to the 1993 SSI classic, rebuilt with Phaser 3, TypeScript, and Vite.",
+  "description": "Warlord 2 - a turn-based strategy with eight factions, stack-based combat, heroes, and AI opponents. Inspired by the 1990s 4X wargame tradition; built from scratch with Phaser 3, TypeScript, and Vite. Not affiliated with SSG or Ubisoft.",
   "type": "module",
   "scripts": {
     "dev": "vite",

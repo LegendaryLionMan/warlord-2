@@ -1,7 +1,9 @@
-# Warlords II Clone
+# Warlord 2
 
-> A browser-based recreation of the 1993 SSI classic, rebuilt from the
-> ground up with **Phaser 3**, **TypeScript**, and **Vite**.
+> An original turn-based strategy game inspired by the 1990s 4X wargame
+> tradition. Built from the ground up with **Phaser 3**, **TypeScript**,
+> and **Vite**. Not affiliated with SSG, Ubisoft, or any other rights
+> holder of the original *Warlords / Warlords II* trademark.
 
 [![Release v1.0](https://img.shields.io/badge/release-v1.0-brightgreen)](./docs/releases/v1.0.md)
 [![Phase 16 / 16](https://img.shields.io/badge/phase-16%20%2F%2016-brightgreen)](#roadmap)
@@ -11,17 +13,13 @@
 [![Vite](https://img.shields.io/badge/Vite-5.4-646cff?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![Phaser](https://img.shields.io/badge/Phaser-3.86-e23b3b?logo=phaser&logoColor=white)](https://phaser.io/)
 
-![Warlords II title screen — 1993 original](docs/screenshots/phase-14-menu.jpg)
-
-![Faction select — all 8 factions](docs/screenshots/phase-16-faction.jpg)
-
-![Game scene — 1993 world map with chrome](docs/screenshots/phase-15-game.jpg)
+![Warlord 2 menu — marble + gold procedural backdrop](docs/screenshots/phase-16-faction.jpg)
 
 A turn-based strategy game with **eight factions**, stack-based tactical
 combat, heroes with progression, city capture, AI opponents, save/load,
-and 1993-styled VICTORY / DEFEAT scenes — faithful to the 1993
-*Warlords II* in both playability and visual quality, but modernised
-for the browser.
+and a marble-and-gold VICTORY / DEFEAT overlay. All art, music, code,
+and prose are original; the visual language is "1990s 4X wargame" but
+no protected material from any specific historical game is shipped.
 
 > **v1.0 is out.** See [`docs/releases/v1.0.md`](./docs/releases/v1.0.md)
 > for the full release notes. All 17 planned phases (0-16) are
@@ -64,7 +62,7 @@ The flow:
 5. Capture cities, recruit units (including the Settler), level up
    heroes.
 6. Win by capturing 75 % of cities or eliminating all enemies.
-7. Click the 1993-styled VICTORY / DEFEAT panel to return to the
+7. Click the marble-and-gold VICTORY / DEFEAT panel to return to the
    main menu.
 
 Full rules: see [`SPEC.md`](./SPEC.md). In-game manual:
@@ -98,26 +96,27 @@ src/
 │   └── faction-bonus.ts
 ├── render/          Phaser scenes
 │   ├── BootScene.ts
-│   ├── MenuScene.ts        1993 title screen backdrop
+│   ├── MenuScene.ts        procedural marble + gold backdrop
 │   ├── FactionScene.ts     8-faction select grid
-│   ├── GameScene.ts        1993 world map + chrome
-│   ├── CombatScene.ts      1993 combat screen
-│   ├── ProductionScene.ts  1993 production dialog
-│   ├── HeroScene.ts        1993 hero dialog
-│   ├── QuestScene.ts       1993 quest dialog (4 variants)
-│   ├── OutcomeScene.ts     1993 VICTORY/DEFEAT overlay
-│   ├── palette.ts          16-color Warlords-II palette
+│   ├── GameScene.ts        procedural terrain + chiseled HUD
+│   ├── CombatScene.ts      procedural dark-red + gold frame
+│   ├── ProductionScene.ts  procedural dark-wood + gold frame
+│   ├── HeroScene.ts        procedural parchment + gold frame
+│   ├── QuestScene.ts       procedural aged-paper + gold frame
+│   ├── OutcomeScene.ts     marble-and-gold VICTORY/DEFEAT overlay
+│   ├── palette.ts          16-color Warlord 2 palette
 │   ├── pixel-art.ts        hand-coded sprite renderer
+│   ├── backdrops.ts        shared procedural backdrop helper
 │   ├── procedural-sprites.ts
 │   └── index.ts
 ├── hud/             DOM HUD layer
-│   ├── hud.css
+│   ├── hud.css             CSS-only chiseled-stone (no image assets)
 │   ├── hud.ts
 │   ├── store.ts
 │   └── panels/
 │       ├── top-bar.ts
 │       ├── side-panel.ts
-│       ├── action-bar.ts   1993 bottom action bar
+│       ├── action-bar.ts   CSS-only chiseled-stone bottom bar
 │       └── message-box.ts
 ├── input/           Action names + keymap
 ├── data/            Static data (units, factions, heroes, terrain, manifests)
@@ -139,10 +138,9 @@ docs/                Architecture, visual fidelity, per-phase changelogs, releas
 * [`docs/architecture.md`](./docs/architecture.md) — module boundaries,
   state rules.
 * [`docs/visual-fidelity.md`](./docs/visual-fidelity.md) — sprite,
-  tile, UI, audio standards; documents the original-1993-as-backdrop
-  approach.
-* [`docs/original-reference.md`](./docs/original-reference.md) — the
-  1993 source-game reference (palette, soundtrack, faction list).
+  tile, UI, audio standards; documents the procedural-Graphics approach.
+* [`docs/original-reference.md`](./docs/original-reference.md) —
+  design references: 16-colour palette, soundtrack, faction roster.
 * [`docs/asset-credits.md`](./docs/asset-credits.md) — generation
   pipeline and license notes.
 * [`docs/wiki/Game-Manual.md`](./docs/wiki/Game-Manual.md) — in-game
@@ -177,9 +175,9 @@ docs/                Architecture, visual fidelity, per-phase changelogs, releas
 | **11. Playtest + deploy** | Build verified, deploy documented. | ✅ Done |
 | **12. AI-generated art & audio** | 48 sprites, 7 music tracks, 10 SFX. | ✅ Done |
 | **13. 16-color pixel art** | 49 hand-coded SVGA sprites, chiseled HUD. | ✅ Done |
-| **14. Original 1993 backdrops** | Title / world / combat / hero / production / quest screenshots as in-game backdrops; byte-exact `STANDARD.PAL`. | ✅ Done |
-| **15. 1993 HUD chrome + dialogs** | Top / right / bottom HUD crops; Production / Hero / Quest dialogs. | ✅ Done |
-| **16. Settler + 4 new factions + outcomes** | Full 1993 roster of 8 factions, Settler, 1993 VICTORY / DEFEAT scenes. | ✅ Done |
+| **14. Original visual backdrops** | Procedural marble + gold menus, world backdrop, combat / hero / production / quest panels; 16-colour Warlord 2 palette. | ✅ Done |
+| **15. HUD chrome + dialogs** | CSS-only chiseled-stone top / right / bottom bars; procedural Production / Hero / Quest panels. | ✅ Done |
+| **16. Settler + 4 additional factions + outcomes** | Full 8-faction roster, Settler, marble-and-gold VICTORY / DEFEAT panels. | ✅ Done |
 
 **All 17 phases complete.** v1.0 is the first public release.
 Per-phase detail at `docs/changelog/phase-N.md`. Per-release
@@ -196,7 +194,7 @@ static host:
 | Netlify | `netlify deploy --prod --dir=dist` (after `npm i -g netlify-cli`) |
 | Local preview | `npm run preview` (Vite serves `dist/` on port 4173) |
 
-GitHub Pages is **not** enabled. The clone uses 1993 SSG assets
+GitHub Pages is **not** enabled. All assets are original
 under fair use as fan-clone reconstruction reference; before
 enabling Pages, confirm you're comfortable with the broader
 public exposure that brings.
@@ -238,5 +236,5 @@ hard constraints.
 ## License
 
 ISC. See [`LICENSE`](./LICENSE) for the full text, including the
-asset notice crediting the 1993 SSG / Steve Fawkner originals
+attribution block clarifying the original scope and non-affiliation
 under fair use.

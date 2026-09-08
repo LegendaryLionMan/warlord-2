@@ -22,7 +22,7 @@ export const FACTIONS: FactionId[] = [
   'orcs',
   'undead',
   'siroms',
-  'darkelves',
+  'nightelves',
   'fey',
   'syrnyn',
 ];
@@ -37,7 +37,7 @@ export const FACTION_COLORS: Record<FactionId, { primary: number; secondary: num
   orcs:      { primary: 0x9b2a2a, secondary: 0x5a1414, accent: 0xcc5050, text: '#f5e8e8' },
   undead:    { primary: 0x6b3a8a, secondary: 0x3a1a5a, accent: 0x9a6cc0, text: '#f0e8f5' },
   siroms:    { primary: 0x6a5a4a, secondary: 0x4a3a2a, accent: 0x9a8a7a, text: '#f0e8e0' },
-  darkelves: { primary: 0x4a2a6a, secondary: 0x2a1a4a, accent: 0x8a5aa0, text: '#f0e0f5' },
+  nightelves: { primary: 0x4a2a6a, secondary: 0x2a1a4a, accent: 0x8a5aa0, text: '#f0e0f5' },
   fey:       { primary: 0x3a7a5a, secondary: 0x1a5a3a, accent: 0x6acc8a, text: '#e0f5e8' },
   syrnyn:    { primary: 0x8a6420, secondary: 0x5a4210, accent: 0xb89440, text: '#f5f0e0' },
 };

@@ -50,7 +50,7 @@ export function updateHud(patch: Partial<HudSnapshot>): void {
 }
 
 /** Hide the HUD entirely (used by MenuScene and FactionScene, where
- *  the 1993 title / faction art is the dominant visual). */
+ *  the the menu / faction art is the dominant visual). */
 export function hideHud(): void {
   const host = document.getElementById('hud');
   if (host) host.style.display = 'none';

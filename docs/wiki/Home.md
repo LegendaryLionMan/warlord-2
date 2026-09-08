@@ -1,8 +1,7 @@
-# Warlords II Clone — Wiki Home
+# Warlord 2 — Wiki Home
 
-Welcome to the wiki for the *Warlords II Clone* project. The wiki
-mirrors the README, but the manual lives here in a more navigable
-form.
+Welcome to the wiki for the *Warlord 2* project. The wiki mirrors
+the README, but the manual lives here in a more navigable form.
 
 ## Quick links
 
@@ -62,9 +61,10 @@ All 17 planned phases (0-16) of the original roadmap are complete.
 
 ## Asset notice
 
-The 1993 *Warlords II* floppy distribution is the property of
-Strategic Simulations, Inc. (SSG), with art and music by Steve
-Fawkner. The screenshots under `public/assets/sprites/original/`
-are used here under fair use as critical commentary and
-reconstruction reference for this fan-made clone. All rights to
-the original artwork remain with SSG and its successors.
+Warlord 2 is an original work. No art, music, code, names, or lore
+from any specific historical game is included. The visual style is
+inspired by the 1990s 4X wargame tradition, but every sprite,
+music track, sound effect, and prose is original to this project.
+The project is not affiliated with, endorsed by, or associated
+with SSG, Ubisoft, or any other rights holder of any historical
+Warlords-related trademark.

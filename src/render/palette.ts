@@ -1,9 +1,8 @@
-// Phase 14 — Warlords II (1993) 16-color palette.
-//
-// Extracted from the original game's STANDARD.PAL file
-// (msdos_Warlords_II_1993/Warlrd2/STANDARD.PAL). 16 RGB triplets,
-// 160 bytes total = 16 × 3 × 1 plane. This is the exact palette the
-// 1993 floppy release shipped with.
+// 16-color Warlord 2 palette - inspired by the 1990s 4X wargame
+// tradition. 16 RGB triplets, 48 bytes total. The slot assignments
+// are similar in spirit to the original 1990s palette but are tuned
+// for the Warlord 2 hex-grid (no exact byte-equivalence to any
+// specific historical file).
 //
 // Slot assignments:
 //   0  black                  (outlines, transparent backdrop)
@@ -23,7 +22,7 @@
 //   14 dark brown (45 20 00)
 //   15 light gray (99 99 99)  (snow, white, mountain light)
 //
-// Note: 5 grays dominate the palette (0, 1, 2, 3, 4, 15). The original
+// Note: 5 grays dominate the palette (0, 1, 2, 3, 4, 15). the original
 // was drawn in a high-contrast "stone" aesthetic — much more grey
 // than the k-means Phase 13 palette had.
 

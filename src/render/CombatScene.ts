@@ -1,6 +1,7 @@
 import Phaser from 'phaser';
 import { UI_COLORS } from '../config';
 import { audioManager } from '../assets/audio-manager';
+import { drawBackdrop } from './backdrops';
 import type { Army } from '../sim/state';
 import type { CombatResult } from '../sim/combat';
 
@@ -23,13 +24,12 @@ export class CombatScene extends Phaser.Scene {
     const { width, height } = this.scale;
     const pending = (window as unknown as { combatPayload?: { attacker: Army; result: CombatResult } }).combatPayload;
 
-    // Phase 14 — render the original 1993 combat screen (the world
-    // map view + the "Fighting" help dialog from warlord2_006.png) as
-    // the combat backdrop, so the player sees the same chrome the
-    // 1993 game used to introduce a fight.
-    const combatBg = this.add.image(width / 2, height / 2, 'original.combat-screen');
-    combatBg.setDisplaySize(width, height);
-    combatBg.setDepth(-10);
+    // Procedural combat backdrop (dark red + gold frame). No image
+    // assets — the panel is drawn from Phaser Graphics primitives in
+    // `backdrops.ts` so it ships with the code, not as a copyright-
+    // sensitive screenshot.
+    drawBackdrop(this, 'combat');
+    // Subtle dim layer so the side panel text reads cleanly.
     this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.35);
 
     const panelW = 720;

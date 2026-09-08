@@ -23,7 +23,7 @@ const BONUSES: Record<OwnerId, FactionBonuses> = {
   orcs: { flatDefense: 0, rangedAttack: 0, meleeAttack: 1 },
   undead: { flatDefense: 0, rangedAttack: 0, meleeAttack: 0 },
   siroms: { flatDefense: 1, rangedAttack: 0, meleeAttack: 2 },
-  darkelves: { flatDefense: 1, rangedAttack: 1, meleeAttack: 0 },
+  nightelves: { flatDefense: 1, rangedAttack: 1, meleeAttack: 0 },
   fey: { flatDefense: 0, rangedAttack: 0, meleeAttack: 0 },
   syrnyn: { flatDefense: 2, rangedAttack: 0, meleeAttack: 1 },
   neutral: { flatDefense: 0, rangedAttack: 0, meleeAttack: 0 },

@@ -108,7 +108,7 @@ describe('spriteToImageData', () => {
     expect(img.data[3]).toBe(255);
   });
 
-  it('renders every non-transparent pixel from the 1993 palette', () => {
+  it('renders every non-transparent pixel from the Warlord 2 palette', () => {
     const def = fakeDef('1234', 2, 2);
     const img = spriteToImageData(def);
     for (let i = 0; i < 4; i++) {
@@ -145,11 +145,11 @@ describe('applyBayerDither', () => {
 });
 
 describe('Phase 14 — visual fidelity approach', () => {
-  it('uses the original 1993 screenshots as in-game backdrops (no defs)', () => {
-    // Phase 14 reframed the visual approach: instead of hand-coding
-    // sprite defs and rendering them at 4x, we now use the original
-    // 1993 game screenshots as backdrop images for the menu, the
-    // world map, the combat scene, etc. The sprite-defs are stubs.
+  it('uses procedural Phaser Graphics backdrops (no sprite defs)', () => {
+    // Phase 14+ reframed the visual approach: instead of hand-coding
+    // sprite defs and rendering them at 4x, we now use procedural
+    // Phaser Graphics primitives for the menu, the world map, the
+    // combat scene, etc. The sprite-defs are stubs.
     //
     // The pixel-art infrastructure (palette, renderer, defs) remains
     // in the codebase for future phases that may add hand-authored

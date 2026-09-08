@@ -6,7 +6,7 @@ captures the state of the project after all 17 planned phases
 
 | Tag | Date | Headline | Notes |
 |---|---|---|---|
-| [v1.0](./docs/releases/v1.0.md) | 2026-09-08 | First public release — 8 factions, Settler, 1993 chrome | Snapshot of `main` at `7bc4343`. All 110 unit + 66 e2e tests pass. |
+| [v1.0](./docs/releases/v1.0.md) | 2026-09-08 | First public release — 8 factions, Settler, procedural backdrops | Snapshot of `main` at `7bc4343`. All 110 unit + 66 e2e tests pass. |
 
 ## How a release is made
 

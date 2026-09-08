@@ -1,9 +1,11 @@
 # Game manual
 
-A condensed version of the in-game rules. The clone is faithful
-to the 1993 *Warlords II* floppy, so most of this matches the
-1993 manual — the only differences are the simplified (single-army)
-AI and the procedurally generated map.
+A condensed version of the in-game rules. Warlord 2 is an
+original 4X wargame inspired by the 1990s tradition, so the
+core loop (BFS movement, stack combat, city capture, hero
+abilities, AI turns) follows the genre conventions. The
+implementation is original; the rules below describe what
+Warlord 2 actually does, not any specific historical game.
 
 ## The goal
 
@@ -28,7 +30,7 @@ a distinct stat modifier and a unique hero.
 | **Orcs** | +1 melee attack | Orc Warlord |
 | **Undead** | 20% resurrect on victory | Necromancer |
 | **Siroms** | +2 melee attack, +1 defense | Thane Korr |
-| **Dark Elves** | +1 ranged attack, +1 defense | Malys Shadowveil |
+| **Night Elves** | +1 ranged attack, +1 defense | Malys Shadowveil |
 | **Fey** | 10% resurrect | Queen Titania |
 | **Syrnyn** | +2 defense, +1 melee attack | King Dwalin |
 

@@ -5,8 +5,8 @@
  * stats. The simulation calls these in combat.ts, not the data layer. This
  * keeps the bonus logic testable and easy to extend.
  *
- * Phase 16 — adds the 4 missing 1993 factions: Siroms, Dark Elves, Fey,
- * and Syrnyn. The 1993 roster has 8 factions total; previously the clone
+ * Phase 16 - adds the 4 additional factions: Siroms, Night Elves, Fey,
+ * and Syrnyn. The roster has 8 factions total; previously the clone
  * only had the original 4 (Humans, Elves, Orcs, Undead).
  */
 
@@ -36,7 +36,7 @@ export interface FactionDefinition {
   /** Phase 16 — primary color used for the faction card border, hero
    *  portrait rim, and unit-tint base. Hex string. */
   primaryColor: string;
-  /** Phase 16 — display name for the hero portrait. The 1993 game had
+  /** Phase 16 — display name for the hero portrait. the original design had
    *  a fixed hero per faction (Sir Marhaus for humans, etc.). */
   heroName: string;
 }
@@ -102,8 +102,8 @@ export const FACTIONS: Record<FactionId, FactionDefinition> = {
     primaryColor: '#3a3a5a',
     heroName: 'Lord Vryx',
   },
-  // Phase 16 — the remaining 4 1993 factions. Bonus numbers below are
-  // placeholders that mirror the flavor in the 1993 manual; we keep them
+  // Phase 16 — the 4 additional factions. Bonus numbers below are
+  // placeholders inspired by fantasy-archetype flavor; we keep them
   // balanced with the original 4.
   siroms: {
     id: 'siroms',
@@ -120,11 +120,11 @@ export const FACTIONS: Record<FactionId, FactionDefinition> = {
     primaryColor: '#6a5a4a',
     heroName: 'Thane Korr',
   },
-  darkelves: {
-    id: 'darkelves',
-    name: 'Dark Elves',
+  nightelves: {
+    id: 'nightelves',
+    name: 'Night Elves',
     tagline: 'Fey cousins with poison strike and stealth.',
-    description: 'Forest kin who deal bonus damage from ambush. Dark Elves gain +1 ranged attack and +1 defense.',
+    description: 'Forest kin who deal bonus damage from ambush. Night Elves gain +1 ranged attack and +1 defense.',
     bonus: {
       flatDefense: 1,
       rangedAttack: 1,

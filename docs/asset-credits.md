@@ -2,25 +2,31 @@
 
 ## Visual style
 
-The original *Warlords II* (1993, Strategic Studies Group) is a 256-color
-SVGA pixel-art game. Modern generative image models cannot produce true
-8-bit pixel art, so the assets in this project are AI-assisted **painted
-fantasy illustrations** in a style that evokes the 1993 hand-drawn
-aesthetic: heavy dithering, bright saturated colors, isometric city
-views, top-down terrain tiles, and a single isolated subject per sprite.
+Warlord 2's in-game visuals are original. The art pipeline produces
+two distinct looks:
 
-Where the source game painted each faction in a "uniform color" and
-re-tinted a base sprite, we generated one sprite per (unit, faction)
-combination — 28 unit variants in total — so each army has its own
-distinct look.
+- **Phase 12 painted-illustration sprites.** AI-assisted **painted
+  fantasy illustrations** in a style that evokes 1990s 4X-wargame
+  aesthetics: heavy dithering, bright saturated colors, isometric
+  city views, top-down terrain tiles, and a single isolated subject
+  per sprite. One sprite per (unit, faction) combination — 28 unit
+  variants in total — so each army has its own distinct look.
+- **Phase 13 hand-coded 16-colour pixel art.** Pure hand-authored
+  pixel arrays in the 1990s 16-colour SVGA tradition. 49 sprite defs
+  (terrain, cities, units, heroes, features, UI chrome) rendered at
+  4× nearest-neighbour.
+- **Phases 14-16 procedural marble + gold backdrops.** All scene
+  backdrops (Menu, Game, Combat, Hero, Production, Quest, Outcome)
+  and the HUD chrome (top bar, right panel, bottom action bar) are
+  drawn from Phaser Graphics primitives and CSS gradients. No
+  extracted images are used in-game.
 
 ## Audio style
 
-The original soundtrack by Steve Fawkner (CD-audio in *Warlords II
-Deluxe*, 1995) is 15 original fantasy-RPG tracks plus CD-audio stings.
-This project does **not** include any of the original audio. Music and
-SFX were generated from scratch in a 1990s-CD-audio orchestral style
-(see `scripts/gen-music.ps1` for the exact prompts).
+All music and SFX in Warlord 2 are original. The 7 music tracks and
+10 SFX stings were generated from scratch in a 1990s-CD-audio
+orchestral style (see `scripts/gen-music.ps1` for the exact prompts).
+No protected audio material is included.
 
 ## Generation pipeline
 
@@ -112,9 +118,9 @@ The full manifest is in `scripts/gen-music.ps1`.
 All generated assets in `public/assets/` are produced from prompts
 authored for this project. They are released under the same terms as
 the surrounding code (see root `LICENSE`). The generated art is not a
-copy of any original *Warlords II* asset — every image and audio clip
+copy of any specific copyrighted work — every image and audio clip
 was generated from a text prompt that did not name a specific
-copyrighted work.
+copyrighted game, character, or asset.
 
 If you regenerate an asset, the new file may differ from the committed
 one even with the same prompt and seed (model updates, stochastic

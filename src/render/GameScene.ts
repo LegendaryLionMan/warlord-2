@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { UI_COLORS_NUM, TILE_SIZE } from '../config';
+import { UI_COLORS_NUM, TILE_SIZE, FACTION_COLORS } from '../config';
 import { updateHud, setEndTurnHandler } from '../hud/hud';
 import { generateMap, tileAt, isPassable } from '../sim/map';
 import { createInitialState, type FactionId, type GameState } from '../sim/state';
@@ -34,7 +34,6 @@ export class GameScene extends Phaser.Scene {
   private selectionRect: Phaser.GameObjects.Rectangle | null = null;
   private rangeOverlays: Phaser.GameObjects.Rectangle[] = [];
   private minimap!: Phaser.GameObjects.Graphics;
-  private minimapBg!: Phaser.GameObjects.Image;
   private armySprite: Phaser.GameObjects.Rectangle | null = null;
   private citySprites: Phaser.GameObjects.Rectangle[] = [];
   private featureSprites: Phaser.GameObjects.Rectangle[] = [];
@@ -108,20 +107,16 @@ export class GameScene extends Phaser.Scene {
       void playerArmy;
     }
 
-    // Phase 14 — render the original 1993 world map minimap as the
-    // playfield backdrop. The cropped minimap is 168x208 (a clean
-    // world overview showing the continent shape, faction borders,
-    // and city dots in the 1993 style). We use it as a TileSprite at
-    // its native size so the continent art tiles naturally across
-    // the 1024x1024 playfield without distortion, then dim it
-    // (alpha 0.55) so the procedural tile grid + cities + armies
-    // remain readable on top.
+    // Procedural playfield background — a dark stone-tile base. The
+    // per-tile terrain, cities, and armies are drawn on top in
+    // renderMap() / renderCities() / renderArmy(). No extracted image
+    // backdrops.
     const playfieldW = this.state.mapWidth * TILE_SIZE;
     const playfieldH = this.state.mapHeight * TILE_SIZE;
-    const worldMap = this.add.tileSprite(0, 0, playfieldW, playfieldH, 'original.world-backdrop');
-    worldMap.setOrigin(0, 0);
-    worldMap.setDepth(-100);
-    worldMap.setAlpha(0.55);
+    const playfieldBg = this.add.graphics();
+    playfieldBg.setDepth(-100);
+    playfieldBg.fillStyle(UI_COLORS_NUM.background, 1);
+    playfieldBg.fillRect(0, 0, playfieldW, playfieldH);
 
     this.cameras.main.setBackgroundColor(UI_COLORS_NUM.background);
     this.cameras.main.setBounds(0, 0, this.state.mapWidth * TILE_SIZE, this.state.mapHeight * TILE_SIZE);
@@ -147,20 +142,19 @@ export class GameScene extends Phaser.Scene {
     this.selectionRect.setVisible(false);
     this.selectionRect.setDepth(100);
 
-    // Phase 15 — use the cropped 1993 minimap (the 168x208 region of
-    // world-map.png) as the in-game minimap backdrop, with the
-    // procedural army + city dot overlay drawn on top. We mount the
-    // background image in the bottom-right corner, sized to roughly
-    // match the 1993 layout (~170x130).
+    // Procedural minimap — dark stone panel with a gold border. The
+    // terrain, cities, army dot, and viewport rectangle are drawn
+    // on top by drawMinimap() below. No extracted image.
     const minimapW = 170;
     const minimapH = 130;
     const minimapX = this.scale.width - minimapW - 16;
     const minimapY = this.scale.height - minimapH - 16;
-    this.minimapBg = this.add.image(minimapX, minimapY, 'original.world-backdrop');
-    this.minimapBg.setOrigin(0, 0);
-    this.minimapBg.setDisplaySize(minimapW, minimapH);
-    this.minimapBg.setScrollFactor(0);
-    this.minimapBg.setDepth(49);
+
+    const minimapPanel = this.add.graphics();
+    minimapPanel.setScrollFactor(0);
+    minimapPanel.setDepth(49);
+    minimapPanel.fillStyle(0x1c1a18, 1);
+    minimapPanel.fillRect(minimapX, minimapY, minimapW, minimapH);
 
     // Frame border around the minimap (chiseled stone)
     const minimapFrame = this.add.graphics();
@@ -265,10 +259,10 @@ export class GameScene extends Phaser.Scene {
       case 'orcs':      return SPRITE_KEYS.cityOrcs;
       case 'undead':    return SPRITE_KEYS.cityUndead;
       // Phase 16 — 4 new factions fall back to the neutral fortress
-      // sprite until real 1993 city variants are extracted. The
-      // faction pip + procedural color still shows the owner.
+      // sprite. The faction pip + procedural color still shows the
+      // owner.
       case 'siroms':
-      case 'darkelves':
+      case 'nightelves':
       case 'fey':
       case 'syrnyn':
       case 'neutral':   return SPRITE_KEYS.cityNeutral;
@@ -304,8 +298,8 @@ export class GameScene extends Phaser.Scene {
     this.drawMinimap();
     this.checkOutcome();
     // Phase 15 — occasional random quest (15% chance per turn). The
-    // 1993 game fired a quest whenever the player ended a turn, with
-    // specific triggers; we approximate with a probabilistic pop.
+    // classic 1990s design fired a quest on most end-turns; we
+    // approximate with a probabilistic pop.
     if (Math.random() < 0.15 && this.state.phase === 'playing') {
       this.scene.launch('QuestScene');
     }
@@ -320,7 +314,7 @@ export class GameScene extends Phaser.Scene {
       audioManager.playMusic('music.victory', { loop: false, volume: 0.6 });
       audioManager.playSfx('sfx.victory-sting');
       updateHud({ message: '🏆 VICTORY! You hold 75% of the kingdom.' });
-      // Phase 16 — launch the OutcomeScene overlay (1993-styled).
+      // Phase 16 — launch the OutcomeScene overlay (marble-and-gold).
       (window as unknown as { outcomePayload: { kind: 'won' | 'lost' } }).outcomePayload = { kind: 'won' };
       this.time.delayedCall(800, () => this.scene.launch('OutcomeScene'));
     } else if (outcome === 'lost') {
@@ -355,8 +349,8 @@ export class GameScene extends Phaser.Scene {
     // Phase 14 — the world-backdrop TileSprite is the playfield's
     // visual layer. We no longer paint full opaque per-tile terrain
     // sprites on top of it; instead each tile gets a tiny colored
-    // corner pip (8x8) hinting at terrain type, so the 1993
-    // minimap underneath stays the dominant visual.
+    // corner pip (8x8) hinting at terrain type, so the procedural
+    // terrain pattern stays the dominant visual.
     for (let y = 0; y < this.state.mapHeight; y++) {
       const row: Phaser.GameObjects.Rectangle[] = [];
       for (let x = 0; x < this.state.mapWidth; x++) {
@@ -425,7 +419,32 @@ export class GameScene extends Phaser.Scene {
 
     this.minimap.clear();
 
-    // Overlay army dot on top of the 1993 minimap backdrop.
+    // Procedural terrain tiles on the minimap (plains, forest, hills,
+    // mountains, water). All drawn from the FactionId/terrain state;
+    // no extracted image.
+    const TERRAIN_COLORS: Record<string, number> = {
+      plains: 0x4a6a3a,
+      forest: 0x2a4a2a,
+      hills: 0x8a6a3a,
+      mountains: 0x6a6a6a,
+      water: 0x1a3a6a,
+    };
+    for (let y = 0; y < this.state.mapHeight; y++) {
+      for (let x = 0; x < this.state.mapWidth; x++) {
+        const terrain = this.state.map[y]?.[x]?.terrain ?? 'plains';
+        this.minimap.fillStyle(TERRAIN_COLORS[terrain] ?? 0x4a6a3a, 1);
+        this.minimap.fillRect(baseX + x * cellW, baseY + y * cellH, cellW, cellH);
+      }
+    }
+    // City dots (faction-colored) on the minimap.
+    for (const c of this.state.cities) {
+      const color = c.owner === 'neutral'
+        ? 0xaaaaaa
+        : (FACTION_COLORS[c.owner].primary as number);
+      this.minimap.fillStyle(color, 1);
+      this.minimap.fillRect(baseX + c.x * cellW, baseY + c.y * cellH, cellW, cellH);
+    }
+    // Army dot (player only).
     const army = this.state.armies[0];
     if (army) {
       // Soft yellow halo

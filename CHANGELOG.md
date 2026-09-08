@@ -10,6 +10,26 @@ For tagged releases, see [`RELEASES.md`](./RELEASES.md).
 ## [Unreleased]
 
 ### Changed
+- **Project renamed:** `warlords2-clone` → `warlord-2`. README title,
+  `package.json`, GitHub description, and topics all updated. "Warlord
+  2" is the name of this specific project; it is not affiliated with
+  the original *Warlords / Warlords II* trademark.
+- **All in-game backdrops are now procedural.** The original
+  screenshots under `public/assets/sprites/original/` were removed.
+  The Menu, Game, Combat, Hero, Production, Quest, and Outcome scenes
+  now render marble + gold panels via Phaser Graphics primitives
+  (see `src/render/backdrops.ts`). The HUD chrome (top bar, right
+  panel, bottom action bar) is now CSS-only chiseled-stone.
+- **Palette softened.** The 16-colour Warlord 2 palette is inspired
+  by the 1990s SVGA 16-colour tradition but is no longer required
+  to be byte-equivalent to any specific historical file.
+- **Faction rename:** "Dark Elves" → "Night Elves" (the slot
+  identity, type, and all internal references).
+- **Marketing text updated.** README, in-game footer, and
+  `LICENSE` no longer describe the project as "faithful to the 1993
+  Warlords II" — they describe it as "inspired by the 1990s 4X
+  wargame tradition; built from scratch; not affiliated with SSG
+  or Ubisoft".
 - The github-steward agent is now responsible for repo-side operations
   (releases, issues, PR triage, label set, milestones, wiki).
 - README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT, CODEOWNERS, and
@@ -25,15 +45,15 @@ phases (0-16) of the original plan are complete. Full notes:
 - Full game loop: map gen, BFS movement, stack-based combat,
   city capture, AI turn, hero abilities, win conditions.
 - 8 playable factions: Humans, Elves, Orcs, Undead, **Siroms**,
-  **Dark Elves**, **Fey**, **Syrnyn** (the last four added in
-  Phase 16 to match the full 1993 roster).
+  **Night Elves**, **Fey**, **Syrnyn** (the last four added in
+  Phase 16 for an 8-faction roster).
 - 12 unit types + the **Settler** (added in Phase 16) for founding
   new cities.
-- All in-game art, chrome, and dialogs use the **original 1993
-  Warlords II screenshots** as backdrops, sourced from the
-  Internet Archive mirror and credited under fair use.
-- 16-color Warlords-II palette, byte-exact from the 1993
-  `STANDARD.PAL`.
+- Original AI-painted sprites (Phase 12), hand-coded 16-colour
+  pixel art (Phase 13), procedural marble + gold backdrops
+  (Phases 14-16), and a CSS-only chiseled-stone HUD chrome.
+- 16-colour Warlord 2 palette inspired by the 1990s SVGA
+  16-colour tradition.
 - AI-generated music and SFX (7 tracks, 10 SFX).
 - Save/load via `localStorage`.
 - 110 / 110 unit tests pass, 66 / 66 Playwright e2e tests pass,
@@ -41,12 +61,13 @@ phases (0-16) of the original plan are complete. Full notes:
 
 ### Per-phase detail (linked)
 
-- [Phase 16](./docs/changelog/phase-16.md) — Settler, 4 new
-  factions, VICTORY/DEFEAT scenes.
-- [Phase 15](./docs/changelog/phase-15.md) — 1993 HUD chrome
-  crops + Production / Hero / Quest dialogs.
-- [Phase 14](./docs/changelog/phase-14.md) — Original 1993
-  screenshots as in-game backdrops, byte-exact palette.
+- [Phase 16](./docs/changelog/phase-16.md) — Settler, 4 additional
+  factions, marble-and-gold VICTORY/DEFEAT panels.
+- [Phase 15](./docs/changelog/phase-15.md) — CSS-only chiseled-stone
+  HUD + procedural Production / Hero / Quest panels.
+- [Phase 14](./docs/changelog/phase-14.md) — Procedural marble +
+  gold backdrops (replaces the earlier 1993-screenshot approach
+  that was later removed).
 - [Phase 13](./docs/changelog/phase-13.md) — 49 hand-coded
   16-color pixel-art sprites + chiseled-stone HUD.
 - [Phase 12](./docs/changelog/phase-12.md) — AI-painted
@@ -61,6 +82,9 @@ phases (0-16) of the original plan are complete. Full notes:
   will triage it.
 - The "Settler found city" interaction is defined in the registry
   but the click-to-found handler is not yet wired. Future phase.
-- Real 1993 per-faction hero portraits and city fortresses are
-  not yet extracted; current sprites reuse the neutral fortress
-  and `humans.png` portrait as placeholders.
+- Real per-faction hero portraits and city fortresses are still
+  placeholders (the placeholder human portrait is reused for all 8
+  factions); the original art is no longer used in-game.
+- The `docs/wiki/Game-Manual.md` and other doc pages still mention
+  the historical 1990s setting; the wiki is in-repo so the next
+  doc pass can update them in place.

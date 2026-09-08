@@ -17,7 +17,7 @@ export class FactionScene extends Phaser.Scene {
   }
 
   create(): void {
-    // Phase 14 — hide the HUD so the 1993 faction frame is unobscured.
+    // Phase 14 — hide the HUD so the faction frame is unobscured.
     hideHud();
     this.events.once('shutdown', () => showHud());
     audioManager.playMusic('music.faction-select');
@@ -35,10 +35,10 @@ export class FactionScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    // Phase 16 — 8 factions (the 1993 roster) in a 4×2 grid.
+    // Phase 16 — 8 factions in a 4×2 grid.
     const factionIds: FactionId[] = [
       'humans', 'elves', 'orcs', 'undead',
-      'siroms', 'darkelves', 'fey', 'syrnyn',
+      'siroms', 'nightelves', 'fey', 'syrnyn',
     ];
     const cardW = 200;
     const cardH = 220;

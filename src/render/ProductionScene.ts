@@ -1,12 +1,13 @@
 import Phaser from 'phaser';
 import { UI_COLORS } from '../config';
 import { audioManager } from '../assets/audio-manager';
+import { drawBackdrop } from './backdrops';
 import type { City } from '../sim/state';
 import { hideHud, showHud } from '../hud/hud';
 
 /**
  * Production scene — opens when the player clicks a friendly city.
- * Uses the 1993 "Build Production" dialog (cropped from
+ * Uses the production dialog (cropped from
  * world-map.png / production-screen.png) as the backdrop, with the
  * unit grid drawn on top. A Done button queues the chosen unit and
  * returns to the GameScene.
@@ -30,13 +31,11 @@ export class ProductionScene extends Phaser.Scene {
     }
     const city = pending.city;
 
-    // 1993 production-screen backdrop — the original Build
-    // Production dialog already has the unit grid baked in, so
-    // we just dim it lightly and overlay a small recruitment-status
-    // banner + a Done button in the same spot as the 1993 Done.
-    const bg = this.add.image(width / 2, height / 2, 'original.production-screen');
-    bg.setDisplaySize(width, height);
-    bg.setDepth(-10);
+    // Procedural production backdrop (dark wood + gold frame). The
+    // The production dialog is a procedural panel with a baked-in
+    // unit grid; the procedural backdrop is paired with a small
+    // recruitment banner + a Done button.
+    drawBackdrop(this, 'production');
     this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.15);
 
     // Banner across the top: the city we're recruiting in.
@@ -51,7 +50,7 @@ export class ProductionScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    // Done button (in the same position as the 1993 Done).
+    // Done button (bottom-right).
     const done = this.add
       .text(width - 130, height - 60, 'Done', {
         fontFamily: 'Press Start 2P, monospace',

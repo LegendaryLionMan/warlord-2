@@ -3,6 +3,7 @@ import { UI_COLORS } from '../config';
 import { listSlots, loadSlot } from '../save/storage';
 import { audioManager } from '../assets/audio-manager';
 import { hideHud, showHud } from '../hud/hud';
+import { drawBackdrop } from './backdrops';
 
 /**
  * Main menu scene. Shows the title, a "New Game" button, and a
@@ -16,28 +17,45 @@ export class MenuScene extends Phaser.Scene {
   }
 
   create(): void {
-    // Phase 14 — hide the HUD so the 1993 title screen is unobscured.
+    // Phase 14 — hide the HUD so the title screen is unobscured.
     hideHud();
     this.events.once('shutdown', () => showHud());
     audioManager.playMusic('music.menu');
     this.events.once('shutdown', () => audioManager.stopMusic(400));
     const { width, height } = this.scale;
 
-    // Phase 14 — render the original 1993 Warlords II title screen
-    // (screenshot_00.jpg from Internet Archive) as the menu backdrop.
-    // This is the actual 1993 SSG/Steve Fawkner title artwork.
-    const titleImg = this.add.image(width / 2, height / 2, 'original.title-screen');
-    titleImg.setDisplaySize(width, height);
-    titleImg.setDepth(-10);
+    // Procedural marble + gold menu backdrop. No image references.
+    drawBackdrop(this, 'menu');
 
-    // "Begin" button — positioned over the original's "Begin" button
-    // (lower-left of the title screen, ~x=160, y=320 of 640x480).
-    const beginBtn = this.add
-      .text(width * 0.18, height * 0.69, 'BEGIN', {
-        fontFamily: 'Press Start 2P, monospace',
-        fontSize: '14px',
+    // Big "WARLORD 2" title.
+    this.add
+      .text(width / 2, height * 0.28, 'WARLORD 2', {
+        fontFamily: 'Cinzel, serif',
+        fontSize: '72px',
         color: UI_COLORS.gold,
         fontStyle: 'bold',
+      })
+      .setOrigin(0.5);
+
+    // Subtitle.
+    this.add
+      .text(width / 2, height * 0.40, 'a turn-based strategy of eight kingdoms', {
+        fontFamily: 'Cinzel, serif',
+        fontSize: '18px',
+        color: '#c8b890',
+        fontStyle: 'italic',
+      })
+      .setOrigin(0.5);
+
+    // "Begin" button.
+    const beginBtn = this.add
+      .text(width / 2, height * 0.62, 'BEGIN', {
+        fontFamily: 'Press Start 2P, monospace',
+        fontSize: '18px',
+        color: UI_COLORS.gold,
+        fontStyle: 'bold',
+        backgroundColor: '#1c1a18',
+        padding: { left: 30, right: 30, top: 12, bottom: 12 },
       })
       .setOrigin(0.5)
       .setInteractive({ useHandCursor: true });
@@ -45,15 +63,17 @@ export class MenuScene extends Phaser.Scene {
     beginBtn.on('pointerout', () => beginBtn.setColor(UI_COLORS.gold));
     beginBtn.on('pointerdown', () => this.scene.start('FactionScene'));
 
-    // "Continue" button if a save exists
+    // "Continue" button if a save exists.
     const slots = listSlots();
     if (slots.length > 0) {
       const slotName = slots[0]!;
       const cont = this.add
-        .text(width * 0.18, height * 0.78, `[ CONTINUE — ${slotName} ]`, {
+        .text(width / 2, height * 0.72, `[ CONTINUE — ${slotName} ]`, {
           fontFamily: 'Press Start 2P, monospace',
-          fontSize: '11px',
+          fontSize: '13px',
           color: UI_COLORS.gold,
+          backgroundColor: '#1c1a18',
+          padding: { left: 20, right: 20, top: 8, bottom: 8 },
         })
         .setOrigin(0.5)
         .setInteractive({ useHandCursor: true });
@@ -68,10 +88,9 @@ export class MenuScene extends Phaser.Scene {
       });
     }
 
-    // Subtle credit at the bottom — the original was made by
-    // Strategic Studies Group (SSG), Steve Fawkner et al.
+    // Footer credit (not affiliated with SSG / Ubisoft).
     this.add
-      .text(width / 2, height * 0.96, 'Fan clone · Art © 1993 SSG/Steve Fawkner · Built 2026', {
+      .text(width / 2, height * 0.95, 'Inspired by 1990s turn-based strategy.  Not affiliated with SSG or Ubisoft.', {
         fontFamily: 'Press Start 2P, monospace',
         fontSize: '8px',
         color: UI_COLORS.textDim,

@@ -12,7 +12,7 @@
 import { STARTING_GOLD, MAP_WIDTH, MAP_HEIGHT, DEFAULT_FACTION_COUNT } from '../config';
 
 /** Stable string identifiers. Avoid using raw strings in gameplay code. */
-export type FactionId = 'humans' | 'elves' | 'orcs' | 'undead' | 'siroms' | 'darkelves' | 'fey' | 'syrnyn';
+export type FactionId = 'humans' | 'elves' | 'orcs' | 'undead' | 'siroms' | 'nightelves' | 'fey' | 'syrnyn';
 export type TerrainId = 'plains' | 'forest' | 'hills' | 'mountains' | 'water';
 export type UnitId = 'militia' | 'spearman' | 'archer' | 'knight' | 'cavalry' | 'wizard' | 'giant' | 'settler';
 export type OwnerId = FactionId | 'neutral';

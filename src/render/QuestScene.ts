@@ -2,16 +2,17 @@ import Phaser from 'phaser';
 import { UI_COLORS } from '../config';
 import { audioManager } from '../assets/audio-manager';
 import { hideHud, showHud } from '../hud/hud';
+import { drawBackdrop } from './backdrops';
 
 /**
- * Quest dialog — opens occasionally as a random event. Uses the 1993
- * Quest scroll (cropped from map-overview.png) as the backdrop, with
- * the quest title, body, and a Done button.
+ * Quest dialog — opens occasionally as a random event. Uses a
+ * procedural scroll backdrop, with the quest title, body, and a
+ * Done button.
  */
 export class QuestScene extends Phaser.Scene {
   static readonly KEY = 'QuestScene';
 
-  // 1993-style quest text (drawn from the actual 1993 quest pool
+  // 1990s-style quest text (drawn from the actual 1990s quest pool
   // — see Sir Marhaus's Quest, The Lost City, etc.)
   private static readonly QUESTS: ReadonlyArray<{ title: string; body: string; reward: string }> = [
     {
@@ -47,10 +48,8 @@ export class QuestScene extends Phaser.Scene {
     const { width, height } = this.scale;
     const quest = QuestScene.QUESTS[Math.floor(Math.random() * QuestScene.QUESTS.length)]!;
 
-    // 1993 quest-scroll backdrop
-    const bg = this.add.image(width / 2, height / 2, 'original.map-overview');
-    bg.setDisplaySize(width, height);
-    bg.setDepth(-10);
+    // Procedural quest-scroll backdrop (aged paper + gold frame).
+    drawBackdrop(this, 'quest');
     this.add.rectangle(width / 2, height / 2, width, height, 0x000000, 0.35);
 
     // Quest title (above the scroll)

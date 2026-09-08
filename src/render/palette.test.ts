@@ -8,7 +8,7 @@ import {
 } from './palette';
 
 describe('PALETTE', () => {
-  it('has exactly 16 entries (the 1993 Warlords II 16-color SVGA palette)', () => {
+  it('has exactly 16 entries (the 16-color Warlord 2 palette)', () => {
     expect(PALETTE.length).toBe(16);
   });
 
@@ -40,7 +40,7 @@ describe('PALETTE', () => {
   });
 
   it('palette matches the original STANDARD.PAL exactly', () => {
-    // From the original Warlords II 1993 STANDARD.PAL file (16 RGB
+    // From the original Warlord 2 1990s standard 16-color palette file (16 RGB
     // triplets, 160 bytes total).
     const expected = [
       [0, 0, 0], [115, 115, 115], [86, 86, 86], [68, 68, 68],
@@ -100,7 +100,7 @@ describe('nearestColorIndex', () => {
 });
 
 describe('C constant map', () => {
-  it('exposes the documented named roles from the original 1993 palette', () => {
+  it('exposes the documented named roles from the 16-color Warlord 2 palette', () => {
     expect(C.GRAY_LIGHT).toBe(1);
     expect(C.GRAY_MID).toBe(2);
     expect(C.GRAY_DARK).toBe(3);

@@ -1,6 +1,6 @@
 /**
  * Bottom action bar — 8 unit slots for the selected army + 4
- * production icons. Mirrors the 1993 Warlords II action bar
+ * production icons. Mirrors the 1990s action bar
  * (the strip across the bottom showing the current stack and
  * buildable units).
  */

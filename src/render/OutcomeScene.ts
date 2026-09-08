@@ -5,14 +5,10 @@ import { hideHud, showHud } from '../hud/hud';
 
 /**
  * Outcome overlay — fires when the player wins (75% of the kingdom)
- * or loses (faction destroyed). Uses the 1993 marble-and-gold frame
- * style (matching the original 1993 victory/defeat dialogs from
- * the manual) with a centered title, a sub-quote, and a Return to
- * Main Menu button.
- *
- * The 1993 game showed the player's last-known world map with a
- * parchment overlay; for the clone we use a full-screen marble
- * panel since we don't have a victory map.
+ * or loses (faction destroyed). Uses a 1990s-stylized marble-and-gold
+ * panel with a centered title, a sub-quote, and a Return to Main
+ * Menu button. All visual elements are Phaser Graphics primitives —
+ * no extracted screenshots.
  */
 export class OutcomeScene extends Phaser.Scene {
   static readonly KEY = 'OutcomeScene';
@@ -27,7 +23,7 @@ export class OutcomeScene extends Phaser.Scene {
     const { width, height } = this.scale;
     const outcome = (window as unknown as { outcomePayload?: { kind: 'won' | 'lost' } }).outcomePayload?.kind ?? 'won';
 
-    // 1993 music sting
+    // Victory/defeat sting
     if (outcome === 'won') {
       audioManager.playSfx('sfx.victory-sting');
     } else {
@@ -80,7 +76,7 @@ export class OutcomeScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    // 1993 attribution
+    // Attribution
     this.add
       .text(cx, cy + 80, '"Yet thy dread empire, Chaos, is restored."\n— Alexander Pope', {
         fontFamily: 'Cinzel, serif',
@@ -90,7 +86,7 @@ export class OutcomeScene extends Phaser.Scene {
       })
       .setOrigin(0.5);
 
-    // Return to Main Menu button (1993-styled gold button)
+    // Return to Main Menu button (marble-and-gold gold button)
     const btnY = cy + panelH / 2 - 40;
     const btn = this.add
       .text(cx, btnY, 'Return to Main Menu', {

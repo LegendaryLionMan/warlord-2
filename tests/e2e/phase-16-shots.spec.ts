@@ -11,7 +11,7 @@ test.beforeAll(() => {
   mkdirSync(OUT, { recursive: true });
 });
 
-test('Phase 16 — 8-faction FactionScene (full 1993 roster)', async ({ page }) => {
+test('Phase 16 - 8-faction FactionScene (full roster)', async ({ page }) => {
   await page.goto(`${BASE}/?scene=FactionScene`, { waitUntil: 'networkidle' });
   await page.waitForSelector('canvas', { timeout: 10000 });
   await page.waitForTimeout(2000);
