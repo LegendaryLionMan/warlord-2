@@ -1,0 +1,26 @@
+# CODEOWNERS
+# One per line: pattern @owner
+# Order matters — last match wins.
+
+# Default owner for everything not matched below.
+*       @LegendaryLionMan
+
+# Code in the simulation layer needs a code review.
+# (The sim layer is pure TypeScript — no Phaser, no DOM.)
+/src/sim/        @LegendaryLionMan
+
+# Visual / Phaser scene code.
+/src/render/     @LegendaryLionMan
+/src/hud/        @LegendaryLionMan
+/public/assets/  @LegendaryLionMan
+
+# CI / GitHub automation.
+/.github/        @LegendaryLionMan
+/.github/        @LegendaryLionMan
+
+# Release notes and changelogs are owned by the github-steward agent
+# when the maintainer delegates.
+/docs/changelog/ @LegendaryLionMan
+/docs/releases/  @LegendaryLionMan
+/CHANGELOG.md    @LegendaryLionMan
+/RELEASES.md     @LegendaryLionMan

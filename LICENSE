@@ -1,0 +1,27 @@
+ISC License
+
+Copyright (c) 2026, LegendaryLionMan
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+----------------------------------------------------------------------
+
+Asset notice
+
+The in-game backdrops under `public/assets/sprites/original/` are
+excerpts from the 1993 Warlords II floppy distribution by Strategic
+Simulations, Inc. (SSG), with art and music by Steve Fawkner. They are
+used under fair use as critical commentary and reconstruction reference
+for this fan-made clone. All rights to the original artwork remain with
+SSG and its successors. See `docs/asset-credits.md` for the full
+provenance of every asset.
