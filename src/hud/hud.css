@@ -1,161 +1,370 @@
 /* HUD layer — sits over the Phaser canvas. The playfield is the canvas;
-   the HUD is a regular DOM layer with parchment-and-gold theming. */
+   the HUD is a regular DOM layer styled to look like the 1993 Warlords II
+   interface: chiseled-stone panels, gold leaf, leather trim, and a
+   self-hosted pixel bitmap font (Press Start 2P fallback to a Google
+   web-font if offline). Everything in this file is 16-color aware and
+   avoids any smooth gradients — bevels are 1-2px hard borders. */
+
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* 16-color Warlords-II inspired palette, kept consistent with
+   src/render/palette.ts so the DOM chrome matches the canvas. */
+:root {
+  --c-stone-dark:  #1c1a18;
+  --c-stone-mid:   #4a4540;
+  --c-stone-light: #6a635b;
+  --c-leather:     #3a2a1c;
+  --c-leather-lt:  #5a3a24;
+  --c-gold:        #c89a3c;
+  --c-gold-bright: #f4cf6a;
+  --c-gold-dark:   #6a4a18;
+  --c-blood:       #8a2a1a;
+  --c-emerald:     #2a6a3a;
+  --c-text:        #e8d8a8;
+  --c-text-dim:    #8a7a5a;
+  --c-magic:       #5a4a8a;
+  --font-bitmap:   'Press Start 2P', 'VT323', 'Courier New', monospace;
+}
+
+/* Image-rendering crisp pixels everywhere — no smoothing on dithered
+   stone patterns. The container is the only place we re-enable default
+   behavior. */
+#hud, #hud * {
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+}
 
 #hud {
   position: absolute;
   inset: 0;
   pointer-events: none;
-  font-family: 'Cinzel', serif;
-  color: #e8e4d9;
+  font-family: var(--font-bitmap);
+  color: var(--c-text);
   z-index: 10;
+  /* Subtle dithered stone backdrop visible at the HUD edges.
+     Inset over the Phaser canvas; the canvas itself shows the playfield. */
+  background:
+    repeating-linear-gradient(45deg,
+      rgba(74, 69, 64, 0.0) 0 2px,
+      rgba(28, 26, 24, 0.15) 2px 4px);
 }
 
 #hud > * {
   pointer-events: auto;
 }
 
-/* Top bar */
+/* ---------- Top bar (turn / gold / end-turn) ---------- */
 .top-bar {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  height: 48px;
+  height: 40px;
   display: flex;
   align-items: center;
-  gap: 24px;
-  padding: 0 20px;
-  background: linear-gradient(180deg, #2a2319 0%, #1a1610 100%);
-  border-bottom: 3px solid #8b7355;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  gap: 18px;
+  padding: 0 16px;
+  /* Chiseled stone: dark base + 1px hard gold highlight + 1px dark
+     shadow ridge. No smooth gradient. */
+  background: var(--c-stone-dark);
+  border-bottom: 3px solid var(--c-gold-dark);
+  box-shadow:
+    inset 0 2px 0 0 var(--c-stone-light),
+    inset 0 -1px 0 0 #000,
+    0 4px 0 0 #000;
+}
+
+.top-bar::after {
+  /* The stone-block texture pattern (8x8 dithered tile) */
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    repeating-linear-gradient(0deg,
+      transparent 0 7px,
+      rgba(0,0,0,0.18) 7px 8px),
+    repeating-linear-gradient(90deg,
+      transparent 0 11px,
+      rgba(106, 99, 91, 0.10) 11px 12px);
+  mix-blend-mode: normal;
 }
 
 .top-stat {
-  font-size: 14px;
-  color: #c9b896;
-  text-shadow: 1px 1px 2px #000;
+  position: relative;
+  font-size: 10px;
+  color: var(--c-text);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  /* Sunken stone inset for each stat */
+  background: var(--c-stone-mid);
+  border: 1px solid var(--c-stone-dark);
+  box-shadow:
+    inset 0 1px 0 0 #000,
+    inset 0 -1px 0 0 var(--c-stone-light);
+}
+
+.top-stat .label {
+  color: var(--c-text-dim);
+  margin-right: 6px;
 }
 
 .top-stat.turn {
-  font-size: 18px;
-  color: #ffd700;
+  font-size: 12px;
+  color: var(--c-gold-bright);
   font-weight: bold;
-  letter-spacing: 2px;
-  text-shadow: 0 0 10px rgba(255, 215, 0, 0.4), 1px 1px 2px #000;
+  text-shadow: 1px 1px 0 #000;
+  border-color: var(--c-gold-dark);
+  box-shadow:
+    inset 0 1px 0 0 #000,
+    inset 0 -1px 0 0 var(--c-gold),
+    0 0 6px rgba(244, 207, 106, 0.35);
+}
+
+.top-stat .value {
+  color: var(--c-gold-bright);
+}
+
+/* ---------- Chiseled buttons (end-turn + actions) ---------- */
+.end-turn-btn,
+.hud-action-btn {
+  position: relative;
+  font-family: var(--font-bitmap);
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  cursor: pointer;
+  color: var(--c-gold-bright);
+  background: var(--c-leather);
+  /* Hard 3D bevel: dark outer border, gold inner highlight, dark
+     shadow ridge underneath. NO rounded corners — every corner is a
+     chiseled 90° angle. */
+  border-top:    2px solid var(--c-gold);
+  border-left:   2px solid var(--c-gold);
+  border-right:  2px solid var(--c-gold-dark);
+  border-bottom: 2px solid var(--c-gold-dark);
+  box-shadow:
+    inset  2px  2px 0 0 var(--c-leather-lt),
+    inset -2px -2px 0 0 #000,
+    3px 3px 0 0 #000;
+  transition: transform 60ms, box-shadow 60ms;
+  user-select: none;
+}
+
+.end-turn-btn:hover,
+.hud-action-btn:hover {
+  background: var(--c-leather-lt);
+  color: #fff;
+}
+
+.end-turn-btn:active,
+.hud-action-btn:active {
+  transform: translate(2px, 2px);
+  box-shadow:
+    inset  2px  2px 0 0 #000,
+    inset -2px -2px 0 0 var(--c-leather-lt),
+    1px 1px 0 0 #000;
 }
 
 .end-turn-btn {
   margin-left: auto;
-  background: linear-gradient(180deg, #6a4a1a 0%, #5a3a0a 100%);
-  border: 2px solid #ffd700;
-  color: #ffd700;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: bold;
-  letter-spacing: 2px;
-  padding: 8px 18px;
-  border-radius: 6px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: background 0.2s, transform 0.1s;
-}
-
-.end-turn-btn:hover {
-  background: linear-gradient(180deg, #7a5a2a 0%, #6a4a1a 100%);
-  transform: scale(1.04);
-}
-
-.end-turn-btn:active {
-  transform: scale(0.98);
-}
-
-.hud-action-btn {
-  background: linear-gradient(180deg, #3a3020 0%, #2a2015 100%);
-  border: 1px solid #8b7355;
-  color: #c9b896;
-  font-family: inherit;
+  /* Slightly bigger than the secondary action buttons */
   font-size: 12px;
-  letter-spacing: 1px;
-  padding: 6px 12px;
-  border-radius: 4px;
-  cursor: pointer;
-  text-transform: uppercase;
-  transition: background 0.2s, transform 0.1s;
-}
-
-.hud-action-btn:hover {
-  background: linear-gradient(180deg, #4a4030 0%, #3a3020 100%);
-  color: #ffd700;
-}
-
-.hud-action-btn:active {
-  transform: scale(0.98);
+  padding: 10px 22px;
 }
 
 .hud-action-btn.mute-btn {
   min-width: 38px;
-  font-size: 14px;
-  padding: 6px 8px;
+  font-size: 12px;
+  padding: 8px 10px;
 }
 
-/* Side panel */
+/* ---------- Side panel (right-side: tile/army info) ---------- */
 .side-panel {
   position: absolute;
-  top: 60px;
+  top: 56px;
   right: 12px;
-  width: 280px;
-  background: linear-gradient(180deg, #1f1a14 0%, #151210 100%);
-  border: 2px solid #5a4a32;
-  border-radius: 6px;
-  padding: 12px;
-  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  width: 260px;
+  background: var(--c-stone-dark);
+  border-top:    2px solid var(--c-stone-light);
+  border-left:   2px solid var(--c-stone-light);
+  border-right:  2px solid #000;
+  border-bottom: 2px solid #000;
+  box-shadow: 4px 4px 0 0 #000;
+  padding: 10px 12px;
+  /* Decorative gold scroll header */
+}
+
+.side-panel::before {
+  content: '';
+  display: block;
+  height: 8px;
+  margin: -10px -12px 8px -12px;
+  background:
+    repeating-linear-gradient(90deg,
+      var(--c-gold-dark) 0 4px,
+      var(--c-gold) 4px 8px);
+  border-bottom: 1px solid #000;
 }
 
 .side-panel .panel-title {
-  font-size: 12px;
-  color: #ffd700;
+  font-size: 10px;
+  color: var(--c-gold-bright);
   letter-spacing: 2px;
   text-transform: uppercase;
-  border-bottom: 1px solid #5a4a32;
-  padding-bottom: 6px;
+  border-bottom: 1px dashed var(--c-gold-dark);
+  padding-bottom: 4px;
   margin-bottom: 8px;
+  text-align: center;
+}
+
+.side-panel .panel-body p {
+  margin: 4px 0;
+  line-height: 1.4;
 }
 
 .side-panel .panel-body p.empty {
-  color: #6a5a4a;
+  color: var(--c-text-dim);
   font-style: italic;
-  font-size: 12px;
+  font-size: 9px;
+  text-align: center;
+  padding: 8px 0;
 }
 
 .side-panel .panel-body p.selected {
-  color: #e8e4d9;
-  font-size: 14px;
+  color: var(--c-gold-bright);
+  font-size: 11px;
+  text-shadow: 1px 1px 0 #000;
 }
 
 .side-panel .panel-body p.coord {
-  color: #6a5a4a;
-  font-family: monospace;
-  font-size: 11px;
-  margin-top: 4px;
+  color: var(--c-text-dim);
+  font-family: var(--font-bitmap);
+  font-size: 9px;
+  margin-top: 6px;
+  padding: 2px 4px;
+  background: var(--c-stone-mid);
+  border: 1px solid #000;
+  display: inline-block;
 }
 
-/* Message box */
+/* Faction badge in the side-panel */
+.faction-badge {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+  vertical-align: middle;
+  border: 1px solid #000;
+  box-shadow: 1px 1px 0 0 var(--c-stone-light);
+}
+.faction-badge.humans { background: var(--c-blood); }
+.faction-badge.elves  { background: var(--c-emerald); }
+.faction-badge.orcs   { background: var(--c-leather-lt); }
+.faction-badge.undead { background: var(--c-magic); }
+
+/* ---------- Message box (centered, fades in/out) ---------- */
 .message-box {
   position: absolute;
-  top: 70px;
+  top: 56px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(180deg, #3a3020 0%, #2a2015 100%);
-  border: 2px solid #ffd700;
-  border-radius: 8px;
-  padding: 10px 24px;
-  font-size: 14px;
+  background: var(--c-stone-dark);
+  border-top:    2px solid var(--c-stone-light);
+  border-left:   2px solid var(--c-stone-light);
+  border-right:  2px solid #000;
+  border-bottom: 2px solid #000;
+  box-shadow: 3px 3px 0 0 #000;
+  padding: 8px 20px;
+  font-size: 10px;
+  letter-spacing: 1px;
   text-align: center;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
-  transition: opacity 0.3s;
+  color: var(--c-gold-bright);
+  text-transform: uppercase;
+  text-shadow: 1px 1px 0 #000;
+  transition: opacity 200ms, transform 200ms;
+}
+
+.message-box::before {
+  content: '\25B6  ';
+  color: var(--c-gold);
 }
 
 .message-box.hidden {
   opacity: 0;
+  transform: translateX(-50%) translateY(-8px);
+  pointer-events: none;
+}
+
+/* ---------- Battle outcome flash (used in CombatScene) ---------- */
+.outcome-flash {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 24px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 4px;
+  color: var(--c-gold-bright);
+  text-shadow:
+    2px 2px 0 #000,
+    0 0 8px var(--c-gold);
+  pointer-events: none;
+}
+
+.outcome-flash.victory { color: var(--c-gold-bright); }
+.outcome-flash.defeat  { color: var(--c-blood); }
+
+/* ---------- Modal / dialog (used for save slots, settings) ---------- */
+.modal {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: var(--c-stone-dark);
+  border-top:    3px solid var(--c-gold);
+  border-left:   3px solid var(--c-gold);
+  border-right:  3px solid #000;
+  border-bottom: 3px solid #000;
+  box-shadow: 6px 6px 0 0 #000;
+  padding: 16px 20px;
+  min-width: 320px;
+}
+
+.modal h2 {
+  margin: 0 0 12px 0;
+  font-size: 12px;
+  color: var(--c-gold-bright);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  text-align: center;
+  text-shadow: 1px 1px 0 #000;
+  border-bottom: 1px dashed var(--c-gold-dark);
+  padding-bottom: 8px;
+}
+
+.modal .row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0;
+  border-bottom: 1px dotted var(--c-stone-mid);
+}
+
+.modal .row:last-child { border-bottom: none; }
+
+/* ---------- Helper text below panels (CGA-era feel) ---------- */
+.helper-text {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 8px;
+  letter-spacing: 1px;
+  color: var(--c-text-dim);
+  text-transform: uppercase;
   pointer-events: none;
 }

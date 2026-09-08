@@ -52,3 +52,7 @@ test.js.MIGRATED_OUT
 
 # Vite cache
 .vite/
+
+# esbuild sprite-defs bundle (transient artifact from build-sprites.mjs)
+.build-sprites-bundle.mjs
+

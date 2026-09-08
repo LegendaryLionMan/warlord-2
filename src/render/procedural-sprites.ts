@@ -1,16 +1,21 @@
 /**
- * Procedural sprite generator. Phase 9 deliverable for environments where
- * an image-generation tool (mcode-tools image_synthesize) is unavailable.
+ * Procedural sprite fallback. Phase 13 update.
  *
- * Each helper draws a small Phaser Graphics object on the scene and
- * positions it at (worldX, worldY). The graphics are deterministic —
- * same input always produces the same output.
+ * Since Phase 12 the renderer in `GameScene` prefers the pre-rendered
+ * pixel-art PNGs in `public/assets/sprites/` (built from
+ * `src/render/sprite-defs/` by `scripts/build-sprites.mjs`). This file
+ * remains as a SAFETY NET in case a sprite is missing at runtime —
+ * e.g. a developer's local `public/assets/` got out of sync with the
+ * registry. The shapes here intentionally match the old Phase 9 visual
+ * language (faction-tinted circles + castletown) so a fallback never
+ * looks out of place next to the new pixel art.
  *
- * Visual language:
- *   - Armies: faction-colored circle with a darker border; a single
- *     contrasting shape (sword/arrow/horse/staff) hints at unit role.
- *   - Cities: faction-colored castle footprint with a tower.
- *   - Terrain: solid tile + a small decoration that varies by seed.
+ * If you need to regenerate a sprite for any reason, run:
+ *   npm run build:sprites
+ *
+ * That rewrites every PNG from the registry in `src/render/sprite-defs/`.
+ * Do not edit the Phaser Graphics functions in this file unless you
+ * also have a good reason to keep them around for fallback rendering.
  */
 
 import Phaser from 'phaser';
